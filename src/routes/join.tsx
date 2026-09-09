@@ -170,11 +170,11 @@ function JoinPage() {
                   <span className="inline-flex items-center gap-2 rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
                     <CheckCircle2 className="size-3.5" /> Offline ready
                   </span>
-                  <Button className="w-full" onClick={() => void startQuiz(offline)}>
-                    Start quiz
+                  <Button className="w-full" onClick={() => goToOfflineCheck(offline)}>
+                    Continue
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    You can turn the internet off now — the quiz runs entirely on this device.
+                    Next you&apos;ll be asked to turn the internet off — the quiz runs entirely on this device.
                   </p>
                 </div>
               ) : (
