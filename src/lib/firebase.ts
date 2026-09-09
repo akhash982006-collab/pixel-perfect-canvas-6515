@@ -2,14 +2,18 @@ import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 
+// Firebase web config is publishable by design (access is controlled by
+// Firestore security rules, not by hiding these values).
 const config = {
-  apiKey: import.meta.env["VITE_FIREBASE_API_KEY"] as string | undefined,
-  authDomain: import.meta.env["VITE_FIREBASE_AUTH_DOMAIN"] as string | undefined,
-  projectId: import.meta.env["VITE_FIREBASE_PROJECT_ID"] as string | undefined,
-  storageBucket: import.meta.env["VITE_FIREBASE_STORAGE_BUCKET"] as string | undefined,
-  messagingSenderId: import.meta.env["VITE_FIREBASE_MESSAGING_SENDER_ID"] as string | undefined,
-  appId: import.meta.env["VITE_FIREBASE_APP_ID"] as string | undefined,
+  apiKey: (import.meta.env["VITE_FIREBASE_API_KEY"] as string | undefined) ?? "",
+  authDomain: "quiz-8bb43.firebaseapp.com",
+  projectId: "quiz-8bb43",
+  storageBucket: "quiz-8bb43.firebasestorage.app",
+  messagingSenderId: "511077481077",
+  appId: "1:511077481077:web:c477b3584b19f4a70b963c",
+  measurementId: "G-QP3KBYEL6R",
 };
+
 
 export const isFirebaseConfigured = Boolean(config.apiKey && config.projectId && config.appId);
 
