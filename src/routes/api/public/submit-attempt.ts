@@ -94,9 +94,17 @@ export const Route = createFileRoute("/api/public/submit-attempt")({
             if (quiz.settings?.enableNegativeMarks) score -= q.negativeMarks ?? 0;
           }
         }
-        score = Math.max(0, score);
-        const totalMarks = quiz.totalMarks ?? quiz.questions.reduce((s, q) => s + (q.marks ?? 1), 0);
-        const percentage = totalMarks > 0 ? Math.round((score / totalMarks) * 1000) / 10 : 0;
+        score = Math.round(Math.max(0, score) * 100) / 100;
+        const totalMarks =
+          quiz.questions.reduce((s, q) => s + (q.marks ?? 1), 0) || quiz.totalMarks || 0;
+        const percentage = totalMarks > 0 ? Math.round((score / totalMarks) * 10000) / 100 : 0;
+        // Timing always comes from the device clock at quiz time, never from sync time.
+        const startedAt = new Date(parsed.startTime).getTime();
+        const submittedAt = parsed.endTime ? new Date(parsed.endTime).getTime() : NaN;
+        const timeTaken =
+          Number.isFinite(startedAt) && Number.isFinite(submittedAt)
+            ? Math.max(0, submittedAt - startedAt)
+            : 0;
 
         try {
           const outcome = await createDocument("attempts", parsed.attemptId, {
@@ -109,6 +117,9 @@ export const Route = createFileRoute("/api/public/submit-attempt")({
             unanswered,
             score,
             percentage,
+            totalQuestions: quiz.questions.length,
+            totalMarks,
+            timeTaken,
             passed: score > 0,
             syncStatus: "SYNCED",
             serverReceivedAt: new Date().toISOString(),
