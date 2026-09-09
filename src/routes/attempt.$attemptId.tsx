@@ -300,6 +300,7 @@ function AttemptPage() {
                 <button
                   key={q.id}
                   type="button"
+                  disabled={locked}
                   onClick={() => setIndex(i)}
                   className={`grid size-9 place-items-center rounded-lg border text-sm font-medium ${state}`}
                 >
@@ -321,7 +322,7 @@ function AttemptPage() {
             </div>
           </dl>
 
-          <Button className="mt-5 w-full" onClick={() => setConfirmOpen(true)}>
+          <Button className="mt-5 w-full" disabled={locked} onClick={() => setConfirmOpen(true)}>
             <Check className="size-4" /> Submit quiz
           </Button>
         </aside>
@@ -342,6 +343,10 @@ function AttemptPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {locked && (
+        <InternetDetectedOverlay studentName={attempt.studentName} clock={formatClock(remaining)} verifying />
+      )}
     </div>
   );
 }
