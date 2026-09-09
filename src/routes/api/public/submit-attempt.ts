@@ -52,7 +52,7 @@ interface StoredQuestion {
 interface StoredQuiz {
   questions?: StoredQuestion[];
   totalMarks?: number;
-  passingMarks?: number;
+  
   settings?: { enableNegativeMarks?: boolean };
 }
 
