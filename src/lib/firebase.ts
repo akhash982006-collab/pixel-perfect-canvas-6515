@@ -5,7 +5,9 @@ import { getFirestore, type Firestore } from "firebase/firestore";
 // Firebase web config is publishable by design (access is controlled by
 // Firestore security rules, not by hiding these values).
 const config = {
-  apiKey: (import.meta.env["VITE_FIREBASE_API_KEY"] as string | undefined) ?? "",
+  apiKey:
+    (import.meta.env["VITE_FIREBASE_API_KEY"] as string | undefined) ??
+    "AIzaSyBsLlX8Th6IC07RlzeBKnKKxdf2y-npyYQ",
   authDomain: "quiz-8bb43.firebaseapp.com",
   projectId: "quiz-8bb43",
   storageBucket: "quiz-8bb43.firebasestorage.app",
