@@ -11,11 +11,9 @@ import {
   getStudentSession,
   listAttempts,
   listOfflineQuizzes,
-  putAttempt,
   saveOfflineQuiz,
   saveStudentSession,
 } from "@/lib/db";
-import { uid } from "@/lib/quiz-utils";
 import type { Attempt, OfflineQuiz, Quiz } from "@/lib/types";
 
 export const Route = createFileRoute("/join")({
@@ -192,8 +190,8 @@ function JoinPage() {
                 {resumable.map((a) => (
                   <Link
                     key={a.attemptId}
-                    to="/attempt/$attemptId"
-                    params={{ attemptId: a.attemptId }}
+                    to="/quiz/offline-check"
+                    search={{ quizId: a.quizId }}
                     className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary"
                   >
                     <span>{a.quizTitle}</span>
