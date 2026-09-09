@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setLoading(false);
       setChecking(true);
-      void resolveIsAdmin(u.uid)
+      void resolveIsAdmin(u.uid, u.email)
         .then((ok) => {
           if (!ok) {
             setUser(null);
