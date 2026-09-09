@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Clock3, CloudOff, ListChecks, Sparkles, Trophy, Wifi, WifiOff, Download, CheckCircle2 } from "lucide-react";
+import { Clock3, ListChecks, Sparkles, Trophy, Wifi } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
 
 export const Route = createFileRoute("/")({
@@ -29,11 +29,6 @@ const infoPills = [
   { icon: Trophy, label: "Live Leaderboard" },
 ];
 
-const offlinePoints = [
-  "Quiz downloads before start",
-  "Answers saved locally",
-  "Internet required again only after submission",
-];
 
 const steps = [
   {
@@ -177,26 +172,6 @@ function Landing() {
           ))}
         </div>
 
-        {/* Offline mode card */}
-        <div className="mt-8 w-full max-w-xl rounded-2xl border border-border bg-white p-5 text-left shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <span className="grid size-9 place-items-center rounded-xl bg-brand-soft text-brand-teal">
-              <WifiOff className="size-4.5" />
-            </span>
-            <h2 className="font-display text-base font-semibold text-brand-teal">Offline Competition Mode</h2>
-          </div>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Sign in and prepare the quiz while online. The quiz can only begin after internet access is turned off.
-          </p>
-          <ul className="mt-3.5 space-y-2">
-            {offlinePoints.map((point) => (
-              <li key={point} className="flex items-center gap-2 text-xs font-medium text-foreground sm:text-sm">
-                <CheckCircle2 className="size-4 shrink-0 text-success" />
-                {point}
-              </li>
-            ))}
-          </ul>
-        </div>
 
         {/* CTA */}
         <Link
