@@ -26,7 +26,7 @@ function LegacyAttemptRedirect() {
 
   return (
     <div className="grid min-h-screen place-items-center bg-background text-sm text-muted-foreground">
-      Opening your saved quiz…
+      Recovering your saved quiz…
     </div>
   );
 }
