@@ -115,7 +115,7 @@ function CreateQuiz() {
       teacherName: teacher.name,
       durationMinutes: Number(durationMinutes) || 30,
       totalMarks,
-      passingMarks: Number(passingMarks) || 0,
+      passingMarks: Math.min(Number(passingMarks) || 0, totalMarks),
       settings,
       questions,
       version: published && publish ? version + 1 : version,
