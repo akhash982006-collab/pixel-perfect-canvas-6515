@@ -15,7 +15,15 @@ export interface AdminRecord {
   active: boolean;
 }
 
-export async function resolveIsAdmin(uid: string): Promise<boolean> {
+/** Coordinator accounts allowed to reach the admin area. */
+export const COORDINATOR_EMAILS: string[] = ["laptopnodell@gmail.com"];
+
+export async function resolveIsAdmin(uid: string, email?: string | null): Promise<boolean> {
+  if (COORDINATOR_EMAILS.length > 0) {
+    const allowed = COORDINATOR_EMAILS.some((e) => e.toLowerCase() === (email ?? "").toLowerCase());
+    if (!allowed) return false;
+  }
+
   const db = getDbFirestore();
   if (!db) return true;
   try {
@@ -28,3 +36,4 @@ export async function resolveIsAdmin(uid: string): Promise<boolean> {
     return true;
   }
 }
+
