@@ -109,7 +109,7 @@ export const Route = createFileRoute("/api/public/submit-attempt")({
             unanswered,
             score,
             percentage,
-            passed: score >= (quiz.passingMarks ?? 0),
+            passed: score > 0,
             syncStatus: "SYNCED",
             serverReceivedAt: new Date().toISOString(),
           } as never);
