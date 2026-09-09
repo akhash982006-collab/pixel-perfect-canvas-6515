@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ParticipantDetailsRouteImport } from './routes/participant-details'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminCreateRouteImport } from './routes/admin.create'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
@@ -41,6 +42,11 @@ const ParticipantDetailsRoute = ParticipantDetailsRouteImport.update({
   id: '/participant-details',
   path: '/participant-details',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminCreateRoute = AdminCreateRouteImport.update({
   id: '/create',
@@ -96,11 +102,11 @@ export interface FileRoutesByFullPath {
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
@@ -110,6 +116,7 @@ export interface FileRoutesByTo {
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
+  '/admin': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRoutesById {
@@ -125,6 +132,7 @@ export interface FileRoutesById {
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRouteTypes {
@@ -141,11 +149,11 @@ export interface FileRouteTypes {
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
+    | '/admin/'
     | '/api/public/connectivity-check'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/login'
     | '/participant-details'
     | '/admin/create'
@@ -155,6 +163,7 @@ export interface FileRouteTypes {
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
+    | '/admin'
     | '/api/public/connectivity-check'
   id:
     | '__root__'
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
+    | '/admin/'
     | '/api/public/connectivity-check'
   fileRoutesById: FileRoutesById
 }
@@ -212,6 +222,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/participant-details'
       preLoaderRoute: typeof ParticipantDetailsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/create': {
       id: '/admin/create'
@@ -277,6 +294,7 @@ interface AdminRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminResultsRoute: typeof AdminResultsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -284,6 +302,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminResultsRoute: AdminResultsRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
