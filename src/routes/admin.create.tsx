@@ -95,19 +95,29 @@ function CreateQuiz() {
     setQuestions((qs) => qs.map((q) => (q.id === qid ? { ...q, ...patch } : q)));
   }
 
-  async function publishQuiz() {
+  async function publishQuiz(): Promise<void> {
     if (!coordinator) return;
     const quizCode = (code.trim() || generateQuizCode(title || "AITHERA")).toUpperCase();
 
-    if (!title.trim()) return toast.error("Add a quiz title");
-    if (!(Number(durationMinutes) > 0)) return toast.error("Duration must be more than 0 minutes");
-    if (questions.length < 1) return toast.error("Add at least one question");
     const bad = questions.findIndex(
       (q) => !q.text.trim() || q.options.length !== 4 || q.options.some((o) => !o.trim()),
     );
-    if (bad >= 0) return toast.error(`Question ${bad + 1} needs text and four filled options`);
     const noAnswer = questions.findIndex((q) => q.correctIndex < 0 || q.correctIndex > 3);
-    if (noAnswer >= 0) return toast.error(`Question ${noAnswer + 1} needs one correct answer`);
+    const problem = !title.trim()
+      ? "Add a quiz title"
+      : !(Number(durationMinutes) > 0)
+        ? "Duration must be more than 0 minutes"
+        : questions.length < 1
+          ? "Add at least one question"
+          : bad >= 0
+            ? `Question ${bad + 1} needs text and four filled options`
+            : noAnswer >= 0
+              ? `Question ${noAnswer + 1} needs one correct answer`
+              : null;
+    if (problem) {
+      toast.error(problem);
+      return;
+    }
 
     setBusy(true);
     try {
