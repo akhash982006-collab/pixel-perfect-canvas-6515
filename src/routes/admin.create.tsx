@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { getQuizFromCloud, saveQuizToCloud } from "@/lib/cloud";
 import { generateQuizCode, uid } from "@/lib/quiz-utils";
-import { useTeacherAuth } from "@/hooks/use-teacher-auth";
+import { useAuth } from "@/hooks/use-auth";
 import type { Question, Quiz, QuizSettings } from "@/lib/types";
 
 export const Route = createFileRoute("/admin/create")({
@@ -48,7 +48,7 @@ const defaultSettings: QuizSettings = {
 
 function CreateQuiz() {
   const { id } = Route.useSearch();
-  const { teacher } = useTeacherAuth();
+  const { user: teacher } = useAuth();
   const navigate = useNavigate();
 
   const [quizId] = useState(() => id ?? uid());

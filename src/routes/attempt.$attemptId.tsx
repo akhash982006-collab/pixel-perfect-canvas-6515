@@ -23,9 +23,9 @@ import type { Attempt, OfflineQuiz } from "@/lib/types";
 export const Route = createFileRoute("/attempt/$attemptId")({
   head: () => ({
     meta: [
-      { title: "Quiz in progress — Offline Quiz Platform" },
+      { title: "Quiz in progress — AITHERA QUIZ" },
       { name: "description", content: "Answer questions with automatic local saving, a protected timer and full offline support." },
-      { property: "og:title", content: "Quiz in progress — Offline Quiz Platform" },
+      { property: "og:title", content: "Quiz in progress — AITHERA QUIZ" },
       { property: "og:description", content: "Your answers are saved on this device after every tap." },
       { name: "robots", content: "noindex" },
     ],
@@ -81,7 +81,7 @@ function AttemptPage() {
       const a = await getAttempt(attemptId);
       if (!a) {
         toast.error("This attempt is not on this device");
-        navigate({ to: "/join" });
+        navigate({ to: "/participant-details" });
         return;
       }
       if (a.status === "SUBMITTED") {
