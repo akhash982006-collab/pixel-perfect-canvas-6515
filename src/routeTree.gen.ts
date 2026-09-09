@@ -16,6 +16,7 @@ import { Route as ParticipantDetailsRouteImport } from './routes/participant-det
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminCreateRouteImport } from './routes/admin.create'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminParticipantsRouteImport } from './routes/admin.participants'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AttemptAttemptIdRouteImport } from './routes/attempt.$attemptId'
@@ -58,6 +59,11 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminParticipantsRoute = AdminParticipantsRouteImport.update({
+  id: '/participants',
+  path: '/participants',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
   id: '/questions',
   path: '/questions',
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/participants': typeof AdminParticipantsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/participants': typeof AdminParticipantsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/participants': typeof AdminParticipantsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/participant-details'
     | '/admin/create'
     | '/admin/dashboard'
+    | '/admin/participants'
     | '/admin/questions'
     | '/admin/results'
     | '/attempt/$attemptId'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/participant-details'
     | '/admin/create'
     | '/admin/dashboard'
+    | '/admin/participants'
     | '/admin/questions'
     | '/admin/results'
     | '/attempt/$attemptId'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/participant-details'
     | '/admin/create'
     | '/admin/dashboard'
+    | '/admin/participants'
     | '/admin/questions'
     | '/admin/results'
     | '/attempt/$attemptId'
@@ -244,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/participants': {
+      id: '/admin/participants'
+      path: '/participants'
+      fullPath: '/admin/participants'
+      preLoaderRoute: typeof AdminParticipantsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/questions': {
       id: '/admin/questions'
       path: '/questions'
@@ -292,6 +311,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminCreateRoute: typeof AdminCreateRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminParticipantsRoute: typeof AdminParticipantsRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminResultsRoute: typeof AdminResultsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -300,6 +320,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCreateRoute: AdminCreateRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminParticipantsRoute: AdminParticipantsRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminResultsRoute: AdminResultsRoute,
   AdminIndexRoute: AdminIndexRoute,
