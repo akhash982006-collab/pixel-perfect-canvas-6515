@@ -11,11 +11,9 @@ import {
   getStudentSession,
   listAttempts,
   listOfflineQuizzes,
-  putAttempt,
   saveOfflineQuiz,
   saveStudentSession,
 } from "@/lib/db";
-import { uid } from "@/lib/quiz-utils";
 import type { Attempt, OfflineQuiz, Quiz } from "@/lib/types";
 
 export const Route = createFileRoute("/join")({
@@ -93,29 +91,8 @@ function JoinPage() {
     toast.success("Quiz ready offline. You can disconnect now.");
   }
 
-  async function startQuiz(target: OfflineQuiz) {
-    const existing = (await listAttempts()).find(
-      (a) => a.quizId === target.id && a.registerNumber === registerNumber.trim() && a.status !== "SUBMITTED",
-    );
-    if (existing) return navigate({ to: "/attempt/$attemptId", params: { attemptId: existing.attemptId } });
-
-    const now = new Date();
-    const attempt: Attempt = {
-      attemptId: uid(),
-      quizId: target.id,
-      quizCode: target.code,
-      quizTitle: target.title,
-      studentName: studentName.trim(),
-      registerNumber: registerNumber.trim(),
-      startTime: now.toISOString(),
-      deadline: new Date(now.getTime() + target.durationMinutes * 60000).toISOString(),
-      status: "IN_PROGRESS",
-      syncStatus: "PENDING_SYNC",
-      answers: {},
-      quizVersion: target.version,
-    };
-    await putAttempt(attempt);
-    navigate({ to: "/attempt/$attemptId", params: { attemptId: attempt.attemptId } });
+  function goToOfflineCheck(target: OfflineQuiz) {
+    navigate({ to: "/quiz/offline-check", search: { quizId: target.id } });
   }
 
   const resumable = saved.attempts.filter((a) => a.status === "IN_PROGRESS");
@@ -191,11 +168,11 @@ function JoinPage() {
                   <span className="inline-flex items-center gap-2 rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
                     <CheckCircle2 className="size-3.5" /> Offline ready
                   </span>
-                  <Button className="w-full" onClick={() => void startQuiz(offline)}>
-                    Start quiz
+                  <Button className="w-full" onClick={() => goToOfflineCheck(offline)}>
+                    Continue
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    You can turn the internet off now — the quiz runs entirely on this device.
+                    Next you&apos;ll be asked to turn the internet off — the quiz runs entirely on this device.
                   </p>
                 </div>
               ) : (
@@ -213,8 +190,8 @@ function JoinPage() {
                 {resumable.map((a) => (
                   <Link
                     key={a.attemptId}
-                    to="/attempt/$attemptId"
-                    params={{ attemptId: a.attemptId }}
+                    to="/quiz/offline-check"
+                    search={{ quizId: a.quizId }}
                     className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary"
                   >
                     <span>{a.quizTitle}</span>

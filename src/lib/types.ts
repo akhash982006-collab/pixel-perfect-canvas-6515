@@ -56,6 +56,13 @@ export interface AttemptAnswer {
   updatedAt: string;
 }
 
+export interface ConnectionEvent {
+  type: "INTERNET_DETECTED";
+  detectedAt: number;
+  resolvedAt?: number;
+  duration?: number;
+}
+
 export interface Attempt {
   attemptId: string;
   quizId: string;
@@ -76,4 +83,5 @@ export interface Attempt {
   percentage?: number;
   passed?: boolean;
   quizVersion: number;
+  connectionEvents?: ConnectionEvent[];
 }

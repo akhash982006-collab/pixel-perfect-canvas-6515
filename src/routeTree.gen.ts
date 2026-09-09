@@ -14,11 +14,13 @@ import { Route as JoinRouteImport } from './routes/join'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as AttemptAttemptIdRouteImport } from './routes/attempt.$attemptId'
+import { Route as QuizOfflineCheckRouteImport } from './routes/quiz.offline-check'
 import { Route as ResultAttemptIdRouteImport } from './routes/result.$attemptId'
 import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
 import { Route as TeacherCreateRouteImport } from './routes/teacher.create'
 import { Route as TeacherQuizzesRouteImport } from './routes/teacher.quizzes'
 import { Route as TeacherResultsRouteImport } from './routes/teacher.results'
+import { Route as ApiPublicConnectivityCheckRouteImport } from './routes/api/public/connectivity-check'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -43,6 +45,11 @@ const TeacherRoute = TeacherRouteImport.update({
 const AttemptAttemptIdRoute = AttemptAttemptIdRouteImport.update({
   id: '/attempt/$attemptId',
   path: '/attempt/$attemptId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuizOfflineCheckRoute = QuizOfflineCheckRouteImport.update({
+  id: '/quiz/offline-check',
+  path: '/quiz/offline-check',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultAttemptIdRoute = ResultAttemptIdRouteImport.update({
@@ -70,6 +77,12 @@ const TeacherResultsRoute = TeacherResultsRouteImport.update({
   path: '/results',
   getParentRoute: () => TeacherRoute,
 } as any)
+const ApiPublicConnectivityCheckRoute =
+  ApiPublicConnectivityCheckRouteImport.update({
+    id: '/api/public/connectivity-check',
+    path: '/api/public/connectivity-check',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -77,22 +90,26 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
+  '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/teacher/create': typeof TeacherCreateRoute
   '/teacher/quizzes': typeof TeacherQuizzesRoute
   '/teacher/results': typeof TeacherResultsRoute
   '/teacher/': typeof TeacherIndexRoute
+  '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
+  '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/teacher/create': typeof TeacherCreateRoute
   '/teacher/quizzes': typeof TeacherQuizzesRoute
   '/teacher/results': typeof TeacherResultsRoute
   '/teacher': typeof TeacherIndexRoute
+  '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,11 +118,13 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
+  '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/teacher/create': typeof TeacherCreateRoute
   '/teacher/quizzes': typeof TeacherQuizzesRoute
   '/teacher/results': typeof TeacherResultsRoute
   '/teacher/': typeof TeacherIndexRoute
+  '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -115,22 +134,26 @@ export interface FileRouteTypes {
     | '/login'
     | '/teacher'
     | '/attempt/$attemptId'
+    | '/quiz/offline-check'
     | '/result/$attemptId'
     | '/teacher/create'
     | '/teacher/quizzes'
     | '/teacher/results'
     | '/teacher/'
+    | '/api/public/connectivity-check'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/join'
     | '/login'
     | '/attempt/$attemptId'
+    | '/quiz/offline-check'
     | '/result/$attemptId'
     | '/teacher/create'
     | '/teacher/quizzes'
     | '/teacher/results'
     | '/teacher'
+    | '/api/public/connectivity-check'
   id:
     | '__root__'
     | '/'
@@ -138,11 +161,13 @@ export interface FileRouteTypes {
     | '/login'
     | '/teacher'
     | '/attempt/$attemptId'
+    | '/quiz/offline-check'
     | '/result/$attemptId'
     | '/teacher/create'
     | '/teacher/quizzes'
     | '/teacher/results'
     | '/teacher/'
+    | '/api/public/connectivity-check'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -151,7 +176,9 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   TeacherRoute: typeof TeacherRouteWithChildren
   AttemptAttemptIdRoute: typeof AttemptAttemptIdRoute
+  QuizOfflineCheckRoute: typeof QuizOfflineCheckRoute
   ResultAttemptIdRoute: typeof ResultAttemptIdRoute
+  ApiPublicConnectivityCheckRoute: typeof ApiPublicConnectivityCheckRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -191,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AttemptAttemptIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quiz/offline-check': {
+      id: '/quiz/offline-check'
+      path: '/quiz/offline-check'
+      fullPath: '/quiz/offline-check'
+      preLoaderRoute: typeof QuizOfflineCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/result/$attemptId': {
       id: '/result/$attemptId'
       path: '/result/$attemptId'
@@ -226,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherResultsRouteImport
       parentRoute: typeof TeacherRoute
     }
+    '/api/public/connectivity-check': {
+      id: '/api/public/connectivity-check'
+      path: '/api/public/connectivity-check'
+      fullPath: '/api/public/connectivity-check'
+      preLoaderRoute: typeof ApiPublicConnectivityCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -252,7 +293,9 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   TeacherRoute: TeacherRouteWithChildren,
   AttemptAttemptIdRoute: AttemptAttemptIdRoute,
+  QuizOfflineCheckRoute: QuizOfflineCheckRoute,
   ResultAttemptIdRoute: ResultAttemptIdRoute,
+  ApiPublicConnectivityCheckRoute: ApiPublicConnectivityCheckRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
