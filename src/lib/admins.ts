@@ -27,8 +27,10 @@ export async function resolveIsAdmin(uid: string, email?: string | null): Promis
   const db = getDbFirestore();
   if (!db) return true;
   try {
-    const snap = await getDoc(doc(db, "admins", uid));
-    if (!snap.exists()) return true;
+    // Never let a slow / blocked lookup keep the coordinator on "Checking access…".
+    const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000));
+    const snap = await Promise.race([getDoc(doc(db, "admins", uid)), timeout]);
+    if (!snap || !snap.exists()) return true;
     const data = snap.data() as Partial<AdminRecord>;
     return data.role === "admin" && data.active !== false;
   } catch {
