@@ -71,7 +71,7 @@ function Dashboard() {
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{q.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {q.subject} · {q.questions.length} questions
+                    {q.questions.length} questions
                   </p>
                 </div>
                 <span className="rounded-md bg-secondary px-2 py-1 font-mono text-xs">{q.published ? q.code : "Draft"}</span>
