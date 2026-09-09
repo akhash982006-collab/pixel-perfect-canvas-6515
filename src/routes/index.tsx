@@ -15,13 +15,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "The official AITHERA 2026 quiz competition by the Department of Artificial Intelligence and Data Science, St. Xavier's Catholic College of Engineering (Autonomous). Sign in with Google and compete offline.",
+          "The official AITHERA 2026 quiz competition by the Department of Artificial Intelligence and Data Science, St. Xavier's Catholic College of Engineering (Autonomous). Enter your name, role number and quiz code, then compete offline.",
       },
       { property: "og:title", content: "AITHERA QUIZ — AITHERA 2026" },
       {
         property: "og:description",
         content:
-          "Intelligence beyond imagination. Compete in the AITHERA 2026 symposium quiz — sign in with Google, prepare offline, and aim for the top of the leaderboard.",
+          "Intelligence beyond imagination. Compete in the AITHERA 2026 symposium quiz — enter your details, prepare offline, and aim for the top of the leaderboard.",
       },
     ],
   }),
@@ -38,8 +38,8 @@ const infoPills = [
 
 const steps = [
   {
-    title: "Sign In",
-    text: "Continue using your Google account.",
+    title: "Enter Details",
+    text: "Add your name, role number and quiz code.",
   },
   {
     title: "Prepare Offline",
