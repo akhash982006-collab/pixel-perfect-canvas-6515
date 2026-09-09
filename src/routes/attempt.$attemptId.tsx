@@ -13,7 +13,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { StatusPill } from "@/components/status-pill";
+import { InternetDetectedOverlay } from "@/components/internet-detected-overlay";
+import { useConnectivity } from "@/hooks/use-connectivity";
 import { enqueueSync, getAttempt, getOfflineQuiz, putAttempt } from "@/lib/db";
 import { evaluate, formatClock } from "@/lib/quiz-utils";
 import { runSync } from "@/lib/sync";
