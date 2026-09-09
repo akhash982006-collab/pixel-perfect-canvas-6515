@@ -81,6 +81,10 @@ export interface Attempt {
   unanswered?: number;
   percentage?: number;
   passed?: boolean;
+  totalQuestions?: number;
+  totalMarks?: number;
+  /** Numeric elapsed milliseconds between start and submission (ranking uses this). */
+  timeTaken?: number;
   quizVersion: number;
   connectionEvents?: ConnectionEvent[];
 }
