@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { getQuizFromCloud, saveQuizToCloud } from "@/lib/cloud";
+import { findQuizByCode, getQuizFromCloud, saveQuizToCloud } from "@/lib/cloud";
 import { generateQuizCode, uid } from "@/lib/quiz-utils";
 import { useAuth } from "@/hooks/use-auth";
 import type { Question, Quiz, QuizSettings } from "@/lib/types";
@@ -18,9 +18,9 @@ export const Route = createFileRoute("/admin/create")({
   head: () => ({
     meta: [
       { title: "Create a quiz — AITHERA QUIZ" },
-      { name: "description", content: "Set up quiz details, add multiple-choice questions and publish a quiz code." },
+      { name: "description", content: "Set up the symposium quiz, add multiple-choice questions and publish the quiz code." },
       { property: "og:title", content: "Create a quiz — AITHERA QUIZ" },
-      { property: "og:description", content: "Build a quiz and publish it with a short code for students." },
+      { property: "og:description", content: "Build the symposium quiz and publish it with a short code." },
     ],
   }),
   component: CreateQuiz,
@@ -38,29 +38,36 @@ const emptyQuestion = (): Question => ({
 });
 
 const defaultSettings: QuizSettings = {
-  shuffleQuestions: false,
-  shuffleOptions: false,
+  shuffleQuestions: true,
+  shuffleOptions: true,
   showResultImmediately: true,
   allowOffline: true,
   allowMultipleAttempts: false,
   enableNegativeMarks: false,
 };
 
+const defaultInstructions = [
+  "Read every question carefully",
+  "Select only one answer",
+  "Answers are automatically saved",
+  "Internet must remain off during the quiz",
+  "Quiz auto-submits when time ends",
+].join("\n");
+
 function CreateQuiz() {
   const { id } = Route.useSearch();
-  const { user: teacher } = useAuth();
+  const { user: coordinator } = useAuth();
   const navigate = useNavigate();
 
   const [quizId] = useState(() => id ?? uid());
   const [title, setTitle] = useState("");
-  const [subject, setSubject] = useState("");
-  const [description, setDescription] = useState("");
-  const [instructions, setInstructions] = useState("Read every question carefully. Answers save automatically.");
-  const [durationMinutes, setDuration] = useState(30);
-  const [passingMarks, setPassing] = useState(10);
+  const [code, setCode] = useState("");
+  const [instructions, setInstructions] = useState(defaultInstructions);
+  const [durationMinutes, setDuration] = useState(20);
+  const [marksPerQuestion, setMarksPerQuestion] = useState(1);
+  const [negativeValue, setNegativeValue] = useState(0.25);
   const [settings, setSettings] = useState<QuizSettings>(defaultSettings);
   const [questions, setQuestions] = useState<Question[]>([emptyQuestion()]);
-  const [code, setCode] = useState<string | null>(null);
   const [published, setPublished] = useState(false);
   const [version, setVersion] = useState(1);
   const [busy, setBusy] = useState(false);
@@ -70,65 +77,75 @@ function CreateQuiz() {
     void getQuizFromCloud(id).then((q) => {
       if (!q) return;
       setTitle(q.title);
-      setSubject(q.subject);
-      setDescription(q.description);
-      setInstructions(q.instructions);
-      setDuration(q.durationMinutes);
-      setPassing(q.passingMarks);
-      setSettings(q.settings);
-      setQuestions(q.questions.length ? q.questions : [emptyQuestion()]);
       setCode(q.code);
+      setInstructions(q.instructions || defaultInstructions);
+      setDuration(q.durationMinutes);
+      setSettings(q.settings);
+      setMarksPerQuestion(Number(q.questions[0]?.marks) || 1);
+      setNegativeValue(Number(q.questions[0]?.negativeMarks) || 0.25);
+      setQuestions(q.questions.length ? q.questions : [emptyQuestion()]);
       setPublished(q.published);
       setVersion(q.version);
     });
   }, [id]);
 
-  const totalMarks = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
+  const totalMarks = questions.length * (Number(marksPerQuestion) || 0);
 
   function patchQuestion(qid: string, patch: Partial<Question>) {
     setQuestions((qs) => qs.map((q) => (q.id === qid ? { ...q, ...patch } : q)));
   }
 
-  async function save(publish: boolean) {
-    if (!teacher) return;
-    if (!title.trim() || !subject.trim()) {
-      toast.error("Add a title and subject first");
-      return;
-    }
-    if (publish) {
-      const bad = questions.find((q) => !q.text.trim() || q.options.some((o) => !o.trim()));
-      if (bad) {
-        toast.error("Every question needs text and four options before publishing");
+  async function publishQuiz() {
+    if (!coordinator) return;
+    const quizCode = (code.trim() || generateQuizCode(title || "AITHERA")).toUpperCase();
+
+    if (!title.trim()) return toast.error("Add a quiz title");
+    if (!(Number(durationMinutes) > 0)) return toast.error("Duration must be more than 0 minutes");
+    if (questions.length < 1) return toast.error("Add at least one question");
+    const bad = questions.findIndex(
+      (q) => !q.text.trim() || q.options.length !== 4 || q.options.some((o) => !o.trim()),
+    );
+    if (bad >= 0) return toast.error(`Question ${bad + 1} needs text and four filled options`);
+    const noAnswer = questions.findIndex((q) => q.correctIndex < 0 || q.correctIndex > 3);
+    if (noAnswer >= 0) return toast.error(`Question ${noAnswer + 1} needs one correct answer`);
+
+    setBusy(true);
+    try {
+      const existing = await findQuizByCode(quizCode);
+      if (existing && existing.id !== quizId) {
+        toast.error(`Quiz code ${quizCode} is already used — choose another`);
         return;
       }
-    }
-    setBusy(true);
-    const quizCode = code ?? generateQuizCode(subject);
-    const quiz: Quiz = {
-      id: quizId,
-      code: quizCode,
-      title: title.trim(),
-      subject: subject.trim(),
-      description,
-      instructions,
-      teacherId: teacher.uid,
-      teacherName: teacher.name,
-      durationMinutes: Number(durationMinutes) || 30,
-      totalMarks,
-      passingMarks: Math.min(Number(passingMarks) || 0, totalMarks),
-      settings,
-      questions,
-      version: published && publish ? version + 1 : version,
-      published: publish || published,
-      createdAt: new Date().toISOString(),
-    };
-    try {
+
+      const quiz: Quiz = {
+        id: quizId,
+        code: quizCode,
+        title: title.trim(),
+        subject: title.trim(),
+        description: "",
+        instructions,
+        teacherId: coordinator.uid,
+        teacherName: coordinator.name,
+        durationMinutes: Number(durationMinutes),
+        totalMarks,
+        passingMarks: 0,
+        settings,
+        questions: questions.map((q) => ({
+          ...q,
+          marks: Number(marksPerQuestion) || 1,
+          negativeMarks: settings.enableNegativeMarks ? Number(negativeValue) || 0 : 0,
+        })),
+        version: published ? version + 1 : version,
+        published: true,
+        createdAt: new Date().toISOString(),
+      };
+
       await saveQuizToCloud(quiz);
       setCode(quizCode);
       setVersion(quiz.version);
-      setPublished(quiz.published);
-      toast.success(publish ? `Published with code ${quizCode}` : "Draft saved");
-      if (publish) navigate({ to: "/admin/questions" });
+      setPublished(true);
+      toast.success(`Published — quiz code ${quizCode}`);
+      navigate({ to: "/admin/questions" });
     } catch (e) {
       const msg = String((e as Error)?.message ?? e);
       toast.error(
@@ -136,7 +153,7 @@ function CreateQuiz() {
           ? "Saving is taking too long — check this device's internet and try again. Your work is kept on this device."
           : msg.toLowerCase().includes("permission")
             ? "Publishing is blocked by the quiz database permissions. Ask the project owner to publish the coordinator access rules."
-            : "Could not save the quiz",
+            : "Could not publish the quiz",
       );
     } finally {
       setBusy(false);
@@ -148,8 +165,8 @@ function CreateQuiz() {
     { key: "shuffleOptions", label: "Shuffle options" },
     { key: "showResultImmediately", label: "Show result immediately" },
     { key: "allowOffline", label: "Allow offline quiz" },
-    { key: "allowMultipleAttempts", label: "Allow multiple attempts" },
-    { key: "enableNegativeMarks", label: "Enable negative marks" },
+    { key: "allowMultipleAttempts", label: "Multiple attempts" },
+    { key: "enableNegativeMarks", label: "Negative marks" },
   ];
 
   return (
@@ -158,20 +175,16 @@ function CreateQuiz() {
         <div>
           <h1 className="text-2xl font-semibold">{id ? "Edit quiz" : "Create quiz"}</h1>
           <p className="text-sm text-muted-foreground">
-            {questions.length} questions · {totalMarks} marks
+            {questions.length} {questions.length === 1 ? "Question" : "Questions"} • {totalMarks} Total{" "}
+            {totalMarks === 1 ? "Mark" : "Marks"} • {Number(durationMinutes) || 0} Minutes
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" disabled={busy} onClick={() => void save(false)}>
-            Save draft
-          </Button>
-          <Button disabled={busy} onClick={() => void save(true)}>
-            Publish
-          </Button>
-        </div>
+        <Button disabled={busy} onClick={() => void publishQuiz()}>
+          Publish
+        </Button>
       </div>
 
-      {code && published && (
+      {published && code && (
         <button
           type="button"
           onClick={() => {
@@ -181,21 +194,27 @@ function CreateQuiz() {
           className="surface-card inline-flex items-center gap-3 px-4 py-3"
         >
           <span className="text-sm text-muted-foreground">Quiz code</span>
-          <span className="font-mono text-lg font-semibold">{code}</span>
+          <span className="font-mono text-lg font-semibold tracking-widest">{code}</span>
           <Copy className="size-4 text-primary" />
         </button>
       )}
 
       <section className="surface-card space-y-4 p-5">
-        <h2 className="text-base font-semibold">Quiz details</h2>
+        <h2 className="text-base font-semibold">Quiz information</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="title">Quiz title</Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Unit test 1" />
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="AITHERA Quiz Challenge" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="subject">Subject</Label>
-            <Input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Data structures" />
+            <Label htmlFor="code">Quiz code</Label>
+            <Input
+              id="code"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="AITHERA26"
+              className="font-mono tracking-widest"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="duration">Duration (minutes)</Label>
@@ -208,29 +227,25 @@ function CreateQuiz() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="passing">Passing marks</Label>
+            <Label htmlFor="marks">Marks per question</Label>
             <Input
-              id="passing"
+              id="marks"
               type="number"
-              min={0}
-              value={passingMarks}
-              onChange={(e) => setPassing(Number(e.target.value))}
+              min={1}
+              value={marksPerQuestion}
+              onChange={(e) => setMarksPerQuestion(Number(e.target.value))}
             />
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
-          <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="instructions">Instructions for students</Label>
-          <Textarea id="instructions" value={instructions} onChange={(e) => setInstructions(e.target.value)} rows={2} />
+          <Label htmlFor="instructions">Instructions</Label>
+          <Textarea id="instructions" value={instructions} onChange={(e) => setInstructions(e.target.value)} rows={5} />
         </div>
       </section>
 
       <section className="surface-card space-y-3 p-5">
-        <h2 className="text-base font-semibold">Settings</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <h2 className="text-base font-semibold">Competition settings</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {toggles.map((t) => (
             <label key={t.key} className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2 text-sm">
               {t.label}
@@ -241,6 +256,19 @@ function CreateQuiz() {
             </label>
           ))}
         </div>
+        {settings.enableNegativeMarks && (
+          <div className="max-w-xs space-y-2">
+            <Label htmlFor="negative">Negative marks per wrong answer</Label>
+            <Input
+              id="negative"
+              type="number"
+              min={0}
+              step={0.25}
+              value={negativeValue}
+              onChange={(e) => setNegativeValue(Number(e.target.value))}
+            />
+          </div>
+        )}
       </section>
 
       <section className="space-y-4">
@@ -297,6 +325,9 @@ function CreateQuiz() {
                     onChange={() => patchQuestion(q.id, { correctIndex: oi })}
                     className="accent-[var(--success)]"
                   />
+                  <span className="w-4 shrink-0 text-sm font-semibold text-muted-foreground">
+                    {String.fromCharCode(65 + oi)}
+                  </span>
                   <Input
                     value={opt}
                     placeholder={`Option ${String.fromCharCode(65 + oi)}`}
@@ -309,33 +340,10 @@ function CreateQuiz() {
               ))}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="space-y-2">
-                <Label>Marks</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={q.marks}
-                  onChange={(e) => patchQuestion(q.id, { marks: Number(e.target.value) })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Negative marks</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={q.negativeMarks}
-                  onChange={(e) => patchQuestion(q.id, { negativeMarks: Number(e.target.value) })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Explanation (optional)</Label>
-                <Input
-                  value={q.explanation ?? ""}
-                  onChange={(e) => patchQuestion(q.id, { explanation: e.target.value })}
-                />
-              </div>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Marks: {Number(marksPerQuestion) || 0}
+              {settings.enableNegativeMarks ? ` · Negative: ${Number(negativeValue) || 0}` : ""}
+            </p>
           </div>
         ))}
       </section>
