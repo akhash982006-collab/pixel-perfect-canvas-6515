@@ -12,8 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ParticipantDetailsRouteImport } from './routes/participant-details'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminCreateRouteImport } from './routes/admin.create'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -40,16 +38,6 @@ const AdminRoute = AdminRouteImport.update({
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ParticipantDetailsRoute = ParticipantDetailsRouteImport.update({
-  id: '/participant-details',
-  path: '/participant-details',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -118,8 +106,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
-  '/login': typeof LoginRoute
-  '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leaderboard': typeof AdminLeaderboardRoute
@@ -136,8 +122,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
-  '/login': typeof LoginRoute
-  '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leaderboard': typeof AdminLeaderboardRoute
@@ -156,8 +140,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
-  '/login': typeof LoginRoute
-  '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leaderboard': typeof AdminLeaderboardRoute
@@ -177,8 +159,6 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/leaderboard'
-    | '/login'
-    | '/participant-details'
     | '/admin/create'
     | '/admin/dashboard'
     | '/admin/leaderboard'
@@ -195,8 +175,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/leaderboard'
-    | '/login'
-    | '/participant-details'
     | '/admin/create'
     | '/admin/dashboard'
     | '/admin/leaderboard'
@@ -214,8 +192,6 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/leaderboard'
-    | '/login'
-    | '/participant-details'
     | '/admin/create'
     | '/admin/dashboard'
     | '/admin/leaderboard'
@@ -234,8 +210,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   LeaderboardRoute: typeof LeaderboardRoute
-  LoginRoute: typeof LoginRoute
-  ParticipantDetailsRoute: typeof ParticipantDetailsRoute
   AttemptAttemptIdRoute: typeof AttemptAttemptIdRoute
   QuizOfflineCheckRoute: typeof QuizOfflineCheckRoute
   ResultAttemptIdRoute: typeof ResultAttemptIdRoute
@@ -263,20 +237,6 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/participant-details': {
-      id: '/participant-details'
-      path: '/participant-details'
-      fullPath: '/participant-details'
-      preLoaderRoute: typeof ParticipantDetailsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -394,8 +354,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   LeaderboardRoute: LeaderboardRoute,
-  LoginRoute: LoginRoute,
-  ParticipantDetailsRoute: ParticipantDetailsRoute,
   AttemptAttemptIdRoute: AttemptAttemptIdRoute,
   QuizOfflineCheckRoute: QuizOfflineCheckRoute,
   ResultAttemptIdRoute: ResultAttemptIdRoute,
