@@ -8,7 +8,7 @@ import { runSync } from "@/lib/sync";
 import { formatClock } from "@/lib/quiz-utils";
 import type { Attempt, OfflineQuiz } from "@/lib/types";
 
-export const Route = createFileRoute("/result/$attemptId")({
+export const Route = createFileRoute("/result")({
   head: () => ({
     meta: [
       { title: "Quiz result — AITHERA QUIZ" },

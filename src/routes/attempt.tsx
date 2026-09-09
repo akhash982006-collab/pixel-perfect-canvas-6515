@@ -20,7 +20,7 @@ import { evaluate, formatClock } from "@/lib/quiz-utils";
 import { runSync } from "@/lib/sync";
 import type { Attempt, OfflineQuiz } from "@/lib/types";
 
-export const Route = createFileRoute("/attempt/$attemptId")({
+export const Route = createFileRoute("/attempt")({
   head: () => ({
     meta: [
       { title: "Quiz in progress — AITHERA QUIZ" },
