@@ -1,116 +1,77 @@
-import { useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { GraduationCap } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useTeacherAuth } from "@/hooks/use-teacher-auth";
-import { isFirebaseConfigured } from "@/lib/firebase";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Teacher login — Offline Quiz Platform" },
-      { name: "description", content: "Sign in to create quizzes, publish quiz codes and review student results." },
-      { property: "og:title", content: "Teacher login — Offline Quiz Platform" },
-      { property: "og:description", content: "Sign in to create quizzes and review student results." },
+      { title: "Sign in — AITHERA QUIZ" },
+      { name: "description", content: "Sign in with your Google account to enter the AITHERA 2026 quiz competition." },
+      { property: "og:title", content: "Sign in — AITHERA QUIZ" },
+      { property: "og:description", content: "One sign-in for the AITHERA 2026 symposium quiz." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: LoginPage,
 });
 
+function GoogleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+      <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9Z" />
+      <path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1A12 12 0 0 0 12 24Z" />
+      <path fill="#FBBC05" d="M5.4 14.4a7.2 7.2 0 0 1 0-4.6V6.7H1.4a12 12 0 0 0 0 10.8l4-3.1Z" />
+      <path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.5 1.8l3.4-3.4A12 12 0 0 0 1.4 6.7l4 3.1C6.3 6.9 8.9 4.8 12 4.8Z" />
+    </svg>
+  );
+}
+
 function LoginPage() {
-  const { login, register } = useTeacherAuth();
+  const { user, role, checking, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "register">("login");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
+  useEffect(() => {
+    if (!user || !role) return;
+    void navigate({ to: role === "admin" ? "/admin/dashboard" : "/participant-details", replace: true });
+  }, [user, role, navigate]);
+
+  async function handleSignIn() {
     setBusy(true);
     try {
-      if (mode === "login") await login(email.trim(), password);
-      else await register(name.trim() || email.split("@")[0] || "Teacher", email.trim(), password);
-      toast.success("Welcome back");
-      navigate({ to: "/teacher" });
+      await signInWithGoogle();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not sign in");
+      const message = err instanceof Error ? err.message : "Sign-in failed";
+      if (!message.includes("popup-closed-by-user")) toast.error("We couldn't sign you in. Please try again.");
     } finally {
       setBusy(false);
     }
   }
 
+  const waiting = busy || checking || Boolean(user && !role);
+
   return (
-    <div className="hero-surface grid min-h-screen place-items-center px-5 py-10">
-      <div className="w-full max-w-md">
-        <Link to="/" className="mb-6 flex items-center justify-center gap-2 font-semibold">
-          <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <GraduationCap className="size-5" />
-          </span>
-          Offline Quiz Platform
-        </Link>
+    <div className="hero-surface grid min-h-screen place-items-center px-5 py-12">
+      <div className="surface-card w-full max-w-md p-8 text-center">
+        <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground uppercase">AITHERA 2026</p>
+        <h1 className="mt-3 text-3xl font-semibold">
+          <span className="font-serif italic">AITHERA</span> QUIZ
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">Intelligence Beyond Imagination</p>
 
-        <form onSubmit={submit} className="surface-card space-y-4 p-6">
-          <div>
-            <h1 className="text-xl font-semibold">{mode === "login" ? "Teacher login" : "Create a teacher account"}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {isFirebaseConfigured
-                ? "Sign in with your email and password."
-                : "Demo mode: any email with a password of 4+ characters works on this device."}
-            </p>
-          </div>
-
-          {mode === "register" && (
-            <div className="space-y-2">
-              <Label htmlFor="name">Full name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Anitha R" />
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="teacher@college.edu"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••"
-            />
-          </div>
-
-          <Button type="submit" className="w-full" disabled={busy}>
-            {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
+        {waiting ? (
+          <p className="mt-8 text-sm font-medium">Checking access…</p>
+        ) : (
+          <Button size="lg" className="mt-8 w-full gap-3" onClick={() => void handleSignIn()}>
+            <GoogleIcon />
+            CONTINUE WITH GOOGLE
           </Button>
+        )}
 
-          <button
-            type="button"
-            onClick={() => setMode(mode === "login" ? "register" : "login")}
-            className="w-full text-sm text-muted-foreground underline-offset-4 hover:underline"
-          >
-            {mode === "login" ? "No account yet? Create one" : "Already have an account? Sign in"}
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Taking a quiz instead? <Link to="/join" className="text-primary underline-offset-4 hover:underline">Join with a code</Link>
-        </p>
+        <p className="mt-4 text-xs text-muted-foreground">Use your Google account to enter the AITHERA Quiz.</p>
       </div>
     </div>
   );
