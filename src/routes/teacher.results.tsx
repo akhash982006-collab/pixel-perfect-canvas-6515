@@ -97,7 +97,7 @@ function Results() {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">
                   No submissions yet.
                 </td>
               </tr>
@@ -121,6 +121,23 @@ function Results() {
                   >
                     {a.passed ? "Pass" : "Fail"}
                   </span>
+                </td>
+                <td className="px-4 py-3 text-xs">
+                  {(a.connectionEvents?.length ?? 0) === 0 ? (
+                    <span className="text-muted-foreground">None</span>
+                  ) : (
+                    <span
+                      className="rounded-full bg-accent/20 px-2 py-0.5 font-semibold text-accent-foreground"
+                      title={(a.connectionEvents ?? [])
+                        .map(
+                          (e) =>
+                            `${new Date(e.detectedAt).toLocaleTimeString()} — ${Math.round((e.duration ?? 0) / 1000)}s`,
+                        )
+                        .join("\n")}
+                    >
+                      {a.connectionEvents?.length} to review
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">Received</td>
               </tr>
