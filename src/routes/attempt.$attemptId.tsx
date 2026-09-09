@@ -43,6 +43,38 @@ function AttemptPage() {
   const [remaining, setRemaining] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const submitting = useRef(false);
+  const attemptRef = useRef<Attempt | null>(null);
+  attemptRef.current = attempt;
+
+  const active = attempt?.status === "IN_PROGRESS";
+  const { state: connectivity } = useConnectivity({
+    intervalMs: 2500,
+    offlineConfirmations: 2,
+    enabled: Boolean(active),
+  });
+  const locked = active === true && connectivity === "online";
+
+  // Log every internet detection during the quiz; the timer keeps running.
+  useEffect(() => {
+    const a = attemptRef.current;
+    if (!a || a.status !== "IN_PROGRESS") return;
+    const events = [...(a.connectionEvents ?? [])];
+    const open = events.length > 0 ? events[events.length - 1] : undefined;
+    let next: Attempt | null = null;
+    if (connectivity === "online" && (!open || open.resolvedAt !== undefined)) {
+      events.push({ type: "INTERNET_DETECTED", detectedAt: Date.now() });
+      next = { ...a, connectionEvents: events };
+    } else if (connectivity === "offline" && open && open.resolvedAt === undefined) {
+      const resolvedAt = Date.now();
+      events[events.length - 1] = { ...open, resolvedAt, duration: resolvedAt - open.detectedAt };
+      next = { ...a, connectionEvents: events };
+    }
+    if (next) {
+      setAttempt(next);
+      void putAttempt(next);
+    }
+  }, [connectivity]);
+
 
   useEffect(() => {
     void (async () => {
