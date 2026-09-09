@@ -1,5 +1,5 @@
-const CACHE = "oqp-shell-v1";
-const PRECACHE = ["/", "/join", "/manifest.webmanifest"];
+const CACHE = "oqp-shell-v3";
+const PRECACHE = ["/", "/attempt", "/result", "/quiz/offline-check", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -33,7 +33,12 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE).then((c) => c.put(req, copy));
           return res;
         })
-        .catch(() => caches.match(req).then((r) => r || caches.match("/"))),
+        .catch(() =>
+          caches
+            .match(req)
+            .then((r) => r || caches.match(url.pathname))
+            .then((r) => r || caches.match("/")),
+        ),
     );
     return;
   }

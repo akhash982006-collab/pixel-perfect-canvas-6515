@@ -16,11 +16,12 @@ import {
 import { InternetDetectedOverlay } from "@/components/internet-detected-overlay";
 import { useConnectivity } from "@/hooks/use-connectivity";
 import { enqueueSync, getAttempt, getOfflineQuiz, putAttempt } from "@/lib/db";
+import { getActiveAttemptId } from "@/lib/active-attempt";
 import { evaluate, formatClock } from "@/lib/quiz-utils";
 import { runSync } from "@/lib/sync";
 import type { Attempt, OfflineQuiz } from "@/lib/types";
 
-export const Route = createFileRoute("/attempt/$attemptId")({
+export const Route = createFileRoute("/attempt")({
   head: () => ({
     meta: [
       { title: "Quiz in progress — AITHERA QUIZ" },
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/attempt/$attemptId")({
 });
 
 function AttemptPage() {
-  const { attemptId } = Route.useParams();
+  const [attemptId, setAttemptId] = useState<string | null>(null);
   const navigate = useNavigate();
   const [attempt, setAttempt] = useState<Attempt | null>(null);
   const [quiz, setQuiz] = useState<OfflineQuiz | null>(null);
@@ -77,6 +78,16 @@ function AttemptPage() {
 
 
   useEffect(() => {
+    const id = getActiveAttemptId();
+    if (!id) {
+      navigate({ to: "/", replace: true });
+      return;
+    }
+    setAttemptId(id);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!attemptId) return;
     void (async () => {
       const a = await getAttempt(attemptId);
       if (!a) {
@@ -85,7 +96,7 @@ function AttemptPage() {
         return;
       }
       if (a.status === "SUBMITTED") {
-        navigate({ to: "/result/$attemptId", params: { attemptId } });
+        navigate({ to: "/result" });
         return;
       }
       const q = await getOfflineQuiz(a.quizId);
@@ -111,9 +122,9 @@ function AttemptPage() {
       await enqueueSync(submitted.attemptId);
       void runSync();
       toast.success(auto ? "Time is up — quiz submitted" : "Quiz submitted and saved on this device");
-      navigate({ to: "/result/$attemptId", params: { attemptId } });
+      navigate({ to: "/result" });
     },
-    [attempt, quiz, attemptId, navigate, locked],
+    [attempt, quiz, navigate, locked],
   );
 
   // Timer anchored to the stored deadline, so reloads cannot extend it.

@@ -4,11 +4,12 @@ import { CheckCircle2, CloudUpload, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/status-pill";
 import { getAttempt, getOfflineQuiz } from "@/lib/db";
+import { getActiveAttemptId } from "@/lib/active-attempt";
 import { runSync } from "@/lib/sync";
 import { formatClock } from "@/lib/quiz-utils";
 import type { Attempt, OfflineQuiz } from "@/lib/types";
 
-export const Route = createFileRoute("/result/$attemptId")({
+export const Route = createFileRoute("/result")({
   head: () => ({
     meta: [
       { title: "Quiz result — AITHERA QUIZ" },
@@ -22,23 +23,26 @@ export const Route = createFileRoute("/result/$attemptId")({
 });
 
 function ResultPage() {
-  const { attemptId } = Route.useParams();
+  const [attemptId, setAttemptId] = useState<string | null>(null);
   const [attempt, setAttempt] = useState<Attempt | null>(null);
   const [quiz, setQuiz] = useState<OfflineQuiz | null>(null);
   const [syncing, setSyncing] = useState(false);
 
-  const load = async () => {
-    const a = await getAttempt(attemptId);
+  const load = async (id = attemptId) => {
+    if (!id) return;
+    const a = await getAttempt(id);
     setAttempt(a ?? null);
     if (a) setQuiz((await getOfflineQuiz(a.quizId)) ?? null);
   };
 
   useEffect(() => {
-    void load();
-    const t = window.setInterval(() => void load(), 5000);
+    const id = getActiveAttemptId();
+    setAttemptId(id);
+    void load(id);
+    const t = window.setInterval(() => void load(id), 5000);
     return () => window.clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attemptId]);
+  }, []);
 
   if (!attempt) {
     return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading result…</div>;
