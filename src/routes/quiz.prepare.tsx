@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ const STEPS = ["Participant verified", "Quiz found", "Questions prepared", "Offl
 function PreparePage() {
   const { code } = Route.useSearch();
   const navigate = useNavigate();
+  const router = useRouter();
   const [done, setDone] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [resume, setResume] = useState<Attempt | null>(null);
@@ -80,6 +81,17 @@ function PreparePage() {
         return;
       }
       if (cancelled) return;
+      // Warm the offline cache so the quiz pages open with no internet at all.
+      await Promise.all(
+        ["/attempt", "/result", "/quiz/offline-check"].map((path) =>
+          fetch(path, { cache: "reload" }).catch(() => undefined),
+        ),
+      );
+      await Promise.all([
+        router.preloadRoute({ to: "/attempt" }).catch(() => undefined),
+        router.preloadRoute({ to: "/result" }).catch(() => undefined),
+      ]);
+      if (cancelled) return;
       setDone(4);
       window.setTimeout(() => {
         if (!cancelled) void navigate({ to: "/quiz/offline-check", search: { quizId: quiz.id }, replace: true });
@@ -88,7 +100,7 @@ function PreparePage() {
     return () => {
       cancelled = true;
     };
-  }, [code, navigate]);
+  }, [code, navigate, router]);
 
   return (
     <div className="hero-surface grid min-h-screen place-items-center px-5 py-12">
