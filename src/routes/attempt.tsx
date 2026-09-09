@@ -78,8 +78,13 @@ function AttemptPage() {
 
 
   useEffect(() => {
-    setAttemptId(getActiveAttemptId());
-  }, []);
+    const id = getActiveAttemptId();
+    if (!id) {
+      navigate({ to: "/", replace: true });
+      return;
+    }
+    setAttemptId(id);
+  }, [navigate]);
 
   useEffect(() => {
     if (!attemptId) return;
