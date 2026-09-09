@@ -87,3 +87,24 @@ export async function setDocument(path: string, data: Record<string, JsonValue>)
   });
   if (!res.ok) throw new Error(`Firestore write failed (${res.status}): ${await res.text()}`);
 }
+
+/**
+ * Creates a document with an explicit id. Returns "created" on success and
+ * "exists" when the id was already stored (a harmless resubmission), so a
+ * retried offline submission is never reported as a failure.
+ */
+export async function createDocument(
+  collection: string,
+  documentId: string,
+  data: Record<string, JsonValue>,
+): Promise<"created" | "exists"> {
+  const res = await fetch(`${base()}/${collection}?documentId=${encodeURIComponent(documentId)}&key=${apiKey()}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ fields: encodeFields(data) }),
+  });
+  if (res.ok) return "created";
+  const text = await res.text();
+  if (res.status === 409 || text.includes("ALREADY_EXISTS")) return "exists";
+  throw new Error(`Firestore write failed (${res.status}): ${text}`);
+}
