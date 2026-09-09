@@ -14,6 +14,7 @@ import { Route as JoinRouteImport } from './routes/join'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as AttemptAttemptIdRouteImport } from './routes/attempt.$attemptId'
+import { Route as QuizOfflineCheckRouteImport } from './routes/quiz.offline-check'
 import { Route as ResultAttemptIdRouteImport } from './routes/result.$attemptId'
 import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
 import { Route as TeacherCreateRouteImport } from './routes/teacher.create'
@@ -44,6 +45,11 @@ const TeacherRoute = TeacherRouteImport.update({
 const AttemptAttemptIdRoute = AttemptAttemptIdRouteImport.update({
   id: '/attempt/$attemptId',
   path: '/attempt/$attemptId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuizOfflineCheckRoute = QuizOfflineCheckRouteImport.update({
+  id: '/quiz/offline-check',
+  path: '/quiz/offline-check',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultAttemptIdRoute = ResultAttemptIdRouteImport.update({
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
+  '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/teacher/create': typeof TeacherCreateRoute
   '/teacher/quizzes': typeof TeacherQuizzesRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
+  '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/teacher/create': typeof TeacherCreateRoute
   '/teacher/quizzes': typeof TeacherQuizzesRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
+  '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/teacher/create': typeof TeacherCreateRoute
   '/teacher/quizzes': typeof TeacherQuizzesRoute
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/teacher'
     | '/attempt/$attemptId'
+    | '/quiz/offline-check'
     | '/result/$attemptId'
     | '/teacher/create'
     | '/teacher/quizzes'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/login'
     | '/attempt/$attemptId'
+    | '/quiz/offline-check'
     | '/result/$attemptId'
     | '/teacher/create'
     | '/teacher/quizzes'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/teacher'
     | '/attempt/$attemptId'
+    | '/quiz/offline-check'
     | '/result/$attemptId'
     | '/teacher/create'
     | '/teacher/quizzes'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   TeacherRoute: typeof TeacherRouteWithChildren
   AttemptAttemptIdRoute: typeof AttemptAttemptIdRoute
+  QuizOfflineCheckRoute: typeof QuizOfflineCheckRoute
   ResultAttemptIdRoute: typeof ResultAttemptIdRoute
   ApiPublicConnectivityCheckRoute: typeof ApiPublicConnectivityCheckRoute
 }
@@ -203,6 +216,13 @@ declare module '@tanstack/react-router' {
       path: '/attempt/$attemptId'
       fullPath: '/attempt/$attemptId'
       preLoaderRoute: typeof AttemptAttemptIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quiz/offline-check': {
+      id: '/quiz/offline-check'
+      path: '/quiz/offline-check'
+      fullPath: '/quiz/offline-check'
+      preLoaderRoute: typeof QuizOfflineCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/result/$attemptId': {
@@ -273,6 +293,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   TeacherRoute: TeacherRouteWithChildren,
   AttemptAttemptIdRoute: AttemptAttemptIdRoute,
+  QuizOfflineCheckRoute: QuizOfflineCheckRoute,
   ResultAttemptIdRoute: ResultAttemptIdRoute,
   ApiPublicConnectivityCheckRoute: ApiPublicConnectivityCheckRoute,
 }
