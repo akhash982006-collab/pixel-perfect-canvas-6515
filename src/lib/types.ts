@@ -23,14 +23,11 @@ export interface Quiz {
   id: string;
   code: string;
   title: string;
-  subject: string;
-  description: string;
   instructions: string;
   teacherName: string;
   teacherId: string;
   durationMinutes: number;
   totalMarks: number;
-  passingMarks: number;
   startDate?: string;
   endDate?: string;
   settings: QuizSettings;
