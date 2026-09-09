@@ -89,6 +89,7 @@ function PreparePage() {
       );
       await Promise.all([
         router.preloadRoute({ to: "/attempt" }).catch(() => undefined),
+        router.preloadRoute({ to: "/attempt/$attemptId", params: { attemptId: "offline-ready" } }).catch(() => undefined),
         router.preloadRoute({ to: "/result" }).catch(() => undefined),
       ]);
       if (cancelled) return;

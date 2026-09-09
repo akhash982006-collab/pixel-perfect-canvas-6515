@@ -22,6 +22,7 @@ import { Route as AdminParticipantsRouteImport } from './routes/admin.participan
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AttemptAttemptIdRouteImport } from './routes/attempt_.$attemptId'
 import { Route as QuizOfflineCheckRouteImport } from './routes/quiz.offline-check'
 import { Route as QuizPrepareRouteImport } from './routes/quiz.prepare'
 import { Route as ApiPublicConnectivityCheckRouteImport } from './routes/api/public/connectivity-check'
@@ -92,6 +93,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AttemptAttemptIdRoute = AttemptAttemptIdRouteImport.update({
+  id: '/attempt_/$attemptId',
+  path: '/attempt/$attemptId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const QuizOfflineCheckRoute = QuizOfflineCheckRouteImport.update({
   id: '/quiz/offline-check',
   path: '/quiz/offline-check',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/quiz/prepare': typeof QuizPrepareRoute
   '/admin/': typeof AdminIndexRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/quiz/prepare': typeof QuizPrepareRoute
   '/admin': typeof AdminIndexRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/attempt_/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/quiz/prepare': typeof QuizPrepareRoute
   '/admin/': typeof AdminIndexRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/results'
     | '/admin/settings'
+    | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/quiz/prepare'
     | '/admin/'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/results'
     | '/admin/settings'
+    | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/quiz/prepare'
     | '/admin'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/results'
     | '/admin/settings'
+    | '/attempt_/$attemptId'
     | '/quiz/offline-check'
     | '/quiz/prepare'
     | '/admin/'
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   AttemptRoute: typeof AttemptRoute
   LeaderboardRoute: typeof LeaderboardRoute
   ResultRoute: typeof ResultRoute
+  AttemptAttemptIdRoute: typeof AttemptAttemptIdRoute
   QuizOfflineCheckRoute: typeof QuizOfflineCheckRoute
   QuizPrepareRoute: typeof QuizPrepareRoute
   ApiPublicConnectivityCheckRoute: typeof ApiPublicConnectivityCheckRoute
@@ -335,6 +348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/attempt_/$attemptId': {
+      id: '/attempt_/$attemptId'
+      path: '/attempt/$attemptId'
+      fullPath: '/attempt/$attemptId'
+      preLoaderRoute: typeof AttemptAttemptIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/quiz/offline-check': {
       id: '/quiz/offline-check'
       path: '/quiz/offline-check'
@@ -396,6 +416,7 @@ const rootRouteChildren: RootRouteChildren = {
   AttemptRoute: AttemptRoute,
   LeaderboardRoute: LeaderboardRoute,
   ResultRoute: ResultRoute,
+  AttemptAttemptIdRoute: AttemptAttemptIdRoute,
   QuizOfflineCheckRoute: QuizOfflineCheckRoute,
   QuizPrepareRoute: QuizPrepareRoute,
   ApiPublicConnectivityCheckRoute: ApiPublicConnectivityCheckRoute,
