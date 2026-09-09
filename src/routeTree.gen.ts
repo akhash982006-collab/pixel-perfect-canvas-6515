@@ -19,6 +19,7 @@ import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
 import { Route as TeacherCreateRouteImport } from './routes/teacher.create'
 import { Route as TeacherQuizzesRouteImport } from './routes/teacher.quizzes'
 import { Route as TeacherResultsRouteImport } from './routes/teacher.results'
+import { Route as ApiPublicConnectivityCheckRouteImport } from './routes/api/public/connectivity-check'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +71,12 @@ const TeacherResultsRoute = TeacherResultsRouteImport.update({
   path: '/results',
   getParentRoute: () => TeacherRoute,
 } as any)
+const ApiPublicConnectivityCheckRoute =
+  ApiPublicConnectivityCheckRouteImport.update({
+    id: '/api/public/connectivity-check',
+    path: '/api/public/connectivity-check',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/teacher/quizzes': typeof TeacherQuizzesRoute
   '/teacher/results': typeof TeacherResultsRoute
   '/teacher/': typeof TeacherIndexRoute
+  '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,6 +101,7 @@ export interface FileRoutesByTo {
   '/teacher/quizzes': typeof TeacherQuizzesRoute
   '/teacher/results': typeof TeacherResultsRoute
   '/teacher': typeof TeacherIndexRoute
+  '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,6 +115,7 @@ export interface FileRoutesById {
   '/teacher/quizzes': typeof TeacherQuizzesRoute
   '/teacher/results': typeof TeacherResultsRoute
   '/teacher/': typeof TeacherIndexRoute
+  '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/teacher/quizzes'
     | '/teacher/results'
     | '/teacher/'
+    | '/api/public/connectivity-check'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/teacher/quizzes'
     | '/teacher/results'
     | '/teacher'
+    | '/api/public/connectivity-check'
   id:
     | '__root__'
     | '/'
@@ -143,6 +155,7 @@ export interface FileRouteTypes {
     | '/teacher/quizzes'
     | '/teacher/results'
     | '/teacher/'
+    | '/api/public/connectivity-check'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -152,6 +165,7 @@ export interface RootRouteChildren {
   TeacherRoute: typeof TeacherRouteWithChildren
   AttemptAttemptIdRoute: typeof AttemptAttemptIdRoute
   ResultAttemptIdRoute: typeof ResultAttemptIdRoute
+  ApiPublicConnectivityCheckRoute: typeof ApiPublicConnectivityCheckRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -226,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherResultsRouteImport
       parentRoute: typeof TeacherRoute
     }
+    '/api/public/connectivity-check': {
+      id: '/api/public/connectivity-check'
+      path: '/api/public/connectivity-check'
+      fullPath: '/api/public/connectivity-check'
+      preLoaderRoute: typeof ApiPublicConnectivityCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -253,6 +274,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeacherRoute: TeacherRouteWithChildren,
   AttemptAttemptIdRoute: AttemptAttemptIdRoute,
   ResultAttemptIdRoute: ResultAttemptIdRoute,
+  ApiPublicConnectivityCheckRoute: ApiPublicConnectivityCheckRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

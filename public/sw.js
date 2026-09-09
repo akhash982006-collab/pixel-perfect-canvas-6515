@@ -21,6 +21,8 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  // The connectivity probe must ALWAYS hit the network — never serve it from cache.
+  if (url.pathname.startsWith("/api/")) return;
 
   if (req.mode === "navigate") {
     // network first, fall back to cached shell so the app opens offline
