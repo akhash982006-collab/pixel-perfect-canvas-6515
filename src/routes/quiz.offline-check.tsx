@@ -12,7 +12,7 @@ import { uid } from "@/lib/quiz-utils";
 import type { Attempt, OfflineQuiz } from "@/lib/types";
 
 export const Route = createFileRoute("/quiz/offline-check")({
-  validateSearch: z.object({ quizId: z.string() }),
+  validateSearch: z.object({ quizId: z.string().optional().catch(undefined) }),
   head: () => ({
     meta: [
       { title: "Ready to start? — AITHERA QUIZ" },
@@ -56,6 +56,10 @@ function OfflineCheckPage() {
   const { state } = useConnectivity({ intervalMs: 2500, offlineConfirmations: 2 });
 
   useEffect(() => {
+    if (!quizId) {
+      void navigate({ to: "/" });
+      return;
+    }
     void (async () => {
       const [q, s, attempts] = await Promise.all([getOfflineQuiz(quizId), getStudentSession(), listAttempts()]);
       setQuiz(q ?? null);
