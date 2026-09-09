@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, CheckCircle2, Percent, Users } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { useTeacherAttempts, useTeacherQuizzes } from "@/hooks/use-teacher-data";
 
-export const Route = createFileRoute("/admin/")({
+export const Route = createFileRoute("/admin/dashboard")({
   head: () => ({
     meta: [
       { title: "Admin dashboard — AITHERA QUIZ" },

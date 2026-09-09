@@ -13,8 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ParticipantDetailsRouteImport } from './routes/participant-details'
-import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminCreateRouteImport } from './routes/admin.create'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AttemptAttemptIdRouteImport } from './routes/attempt.$attemptId'
@@ -42,14 +42,14 @@ const ParticipantDetailsRoute = ParticipantDetailsRouteImport.update({
   path: '/participant-details',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminCreateRoute = AdminCreateRouteImport.update({
   id: '/create',
   path: '/create',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
@@ -90,25 +90,26 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
-  '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
-  '/admin': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRoutesById {
@@ -118,12 +119,12 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
-  '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRouteTypes {
@@ -134,25 +135,26 @@ export interface FileRouteTypes {
     | '/login'
     | '/participant-details'
     | '/admin/create'
+    | '/admin/dashboard'
     | '/admin/questions'
     | '/admin/results'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
-    | '/admin/'
     | '/api/public/connectivity-check'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/login'
     | '/participant-details'
     | '/admin/create'
+    | '/admin/dashboard'
     | '/admin/questions'
     | '/admin/results'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
-    | '/admin'
     | '/api/public/connectivity-check'
   id:
     | '__root__'
@@ -161,12 +163,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/participant-details'
     | '/admin/create'
+    | '/admin/dashboard'
     | '/admin/questions'
     | '/admin/results'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
-    | '/admin/'
     | '/api/public/connectivity-check'
   fileRoutesById: FileRoutesById
 }
@@ -211,18 +213,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParticipantDetailsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/create': {
       id: '/admin/create'
       path: '/create'
       fullPath: '/admin/create'
       preLoaderRoute: typeof AdminCreateRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/questions': {
@@ -272,16 +274,16 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminCreateRoute: typeof AdminCreateRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminResultsRoute: typeof AdminResultsRoute
-  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCreateRoute: AdminCreateRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminResultsRoute: AdminResultsRoute,
-  AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
