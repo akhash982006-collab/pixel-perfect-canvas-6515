@@ -40,7 +40,7 @@ export function evaluate(quiz: Quiz, attempt: Attempt) {
     unanswered,
     score,
     percentage,
-    passed: score >= quiz.passingMarks,
+    passed: score > 0,
   };
 }
 

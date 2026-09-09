@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { findQuizByCode, getQuizFromCloud, saveQuizToCloud } from "@/lib/cloud";
-import { generateQuizCode, uid } from "@/lib/quiz-utils";
+import { uid } from "@/lib/quiz-utils";
 import { useAuth } from "@/hooks/use-auth";
 import type { Question, Quiz, QuizSettings } from "@/lib/types";
 
@@ -26,15 +26,14 @@ export const Route = createFileRoute("/admin/create")({
   component: CreateQuiz,
 });
 
-const emptyQuestion = (): Question => ({
+const newQuestion = (marks: number): Question => ({
   id: uid(),
   type: "MCQ",
   text: "",
   options: ["", "", "", ""],
   correctIndex: 0,
-  marks: 1,
+  marks: marks > 0 ? marks : 1,
   negativeMarks: 0,
-  explanation: "",
 });
 
 const defaultSettings: QuizSettings = {
@@ -46,13 +45,10 @@ const defaultSettings: QuizSettings = {
   enableNegativeMarks: false,
 };
 
-const defaultInstructions = [
-  "Read every question carefully",
-  "Select only one answer",
-  "Answers are automatically saved",
-  "Internet must remain off during the quiz",
-  "Quiz auto-submits when time ends",
-].join("\n");
+const defaultInstructions =
+  "Read every question carefully. Answers are saved automatically. Internet must remain off during the quiz.";
+
+const sanitizeCode = (v: string) => v.replace(/\s+/g, "").toUpperCase();
 
 function CreateQuiz() {
   const { id } = Route.useSearch();
@@ -67,10 +63,11 @@ function CreateQuiz() {
   const [marksPerQuestion, setMarksPerQuestion] = useState(1);
   const [negativeValue, setNegativeValue] = useState(0.25);
   const [settings, setSettings] = useState<QuizSettings>(defaultSettings);
-  const [questions, setQuestions] = useState<Question[]>([emptyQuestion()]);
+  const [questions, setQuestions] = useState<Question[]>([newQuestion(1)]);
   const [published, setPublished] = useState(false);
   const [version, setVersion] = useState(1);
   const [busy, setBusy] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!id) return;
@@ -83,101 +80,134 @@ function CreateQuiz() {
       setSettings(q.settings);
       setMarksPerQuestion(Number(q.questions[0]?.marks) || 1);
       setNegativeValue(Number(q.questions[0]?.negativeMarks) || 0.25);
-      setQuestions(q.questions.length ? q.questions : [emptyQuestion()]);
+      setQuestions(q.questions.length ? q.questions : [newQuestion(1)]);
       setPublished(q.published);
       setVersion(q.version);
     });
   }, [id]);
 
-  const totalMarks = questions.length * (Number(marksPerQuestion) || 0);
+  const totalMarks = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
 
   function patchQuestion(qid: string, patch: Partial<Question>) {
     setQuestions((qs) => qs.map((q) => (q.id === qid ? { ...q, ...patch } : q)));
   }
 
-  async function publishQuiz(): Promise<void> {
-    if (!coordinator) return;
-    const quizCode = (code.trim() || generateQuizCode(title || "AITHERA")).toUpperCase();
+  function buildQuiz(publish: boolean): Quiz | null {
+    if (!coordinator) return null;
+    return {
+      id: quizId,
+      code: sanitizeCode(code),
+      title: title.trim(),
+      instructions,
+      teacherId: coordinator.uid,
+      teacherName: coordinator.name,
+      durationMinutes: Number(durationMinutes) || 0,
+      totalMarks,
+      settings,
+      questions: questions.map((q) => ({
+        ...q,
+        negativeMarks: settings.enableNegativeMarks ? Number(negativeValue) || 0 : 0,
+      })),
+      version: published && publish ? version + 1 : version,
+      published: publish || published,
+      createdAt: new Date().toISOString(),
+    };
+  }
 
-    const bad = questions.findIndex(
-      (q) => !q.text.trim() || q.options.length !== 4 || q.options.some((o) => !o.trim()),
+  function validate(): Record<string, string> {
+    const e: Record<string, string> = {};
+    if (!title.trim()) e["title"] = "Quiz title is required.";
+    if (!sanitizeCode(code)) e["code"] = "Quiz code is required.";
+    if (!(Number(durationMinutes) > 0)) e["duration"] = "Duration must be more than 0.";
+    if (!(Number(marksPerQuestion) > 0)) e["marks"] = "Marks per question must be more than 0.";
+    if (questions.length < 1) e["questions"] = "Add at least one question.";
+    questions.forEach((q, i) => {
+      if (!q.text.trim()) e[`q-${q.id}`] = `Question ${i + 1} needs question text.`;
+      else if (q.options.length !== 4 || q.options.some((o) => !o.trim()))
+        e[`q-${q.id}`] = `Question ${i + 1} needs four filled options.`;
+      else if (q.correctIndex < 0 || q.correctIndex > 3)
+        e[`q-${q.id}`] = `Question ${i + 1} needs one correct answer.`;
+      else if (!(Number(q.marks) > 0)) e[`q-${q.id}`] = `Question ${i + 1} needs marks above 0.`;
+    });
+    return e;
+  }
+
+  function focusFirstError(e: Record<string, string>) {
+    const first = Object.keys(e)[0];
+    if (!first) return;
+    document.getElementById(`field-${first}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function saveError(err: unknown) {
+    const msg = String((err as Error)?.message ?? err);
+    toast.error(
+      msg.includes("timed out")
+        ? "Saving is taking too long — check this device's internet and try again. Your work is kept on this device."
+        : msg.toLowerCase().includes("permission")
+          ? "Publishing is blocked by the quiz database permissions. Ask the project owner to publish the coordinator access rules."
+          : "Could not save the quiz",
     );
-    const noAnswer = questions.findIndex((q) => q.correctIndex < 0 || q.correctIndex > 3);
-    const problem = !title.trim()
-      ? "Add a quiz title"
-      : !(Number(durationMinutes) > 0)
-        ? "Duration must be more than 0 minutes"
-        : questions.length < 1
-          ? "Add at least one question"
-          : bad >= 0
-            ? `Question ${bad + 1} needs text and four filled options`
-            : noAnswer >= 0
-              ? `Question ${noAnswer + 1} needs one correct answer`
-              : null;
-    if (problem) {
-      toast.error(problem);
+  }
+
+  async function save(publish: boolean): Promise<void> {
+    if (!coordinator) return;
+
+    if (publish) {
+      const found = validate();
+      setErrors(found);
+      if (Object.keys(found).length) {
+        focusFirstError(found);
+        toast.error("Fix the highlighted fields before publishing");
+        return;
+      }
+    } else if (!title.trim() && !sanitizeCode(code)) {
+      setErrors({ title: "Quiz title is required." });
+      toast.error("Add a quiz title before saving the draft");
       return;
     }
 
+    const quiz = buildQuiz(publish);
+    if (!quiz) return;
     setBusy(true);
     try {
-      const existing = await findQuizByCode(quizCode);
-      if (existing && existing.id !== quizId) {
-        toast.error(`Quiz code ${quizCode} is already used — choose another`);
-        return;
+      if (quiz.code) {
+        const existing = await findQuizByCode(quiz.code);
+        if (existing && existing.id !== quizId) {
+          setErrors({ code: "Quiz code already exists." });
+          focusFirstError({ code: "x" });
+          toast.error("Quiz code already exists.");
+          return;
+        }
       }
-
-      const quiz: Quiz = {
-        id: quizId,
-        code: quizCode,
-        title: title.trim(),
-        subject: title.trim(),
-        description: "",
-        instructions,
-        teacherId: coordinator.uid,
-        teacherName: coordinator.name,
-        durationMinutes: Number(durationMinutes),
-        totalMarks,
-        passingMarks: 0,
-        settings,
-        questions: questions.map((q) => ({
-          ...q,
-          marks: Number(marksPerQuestion) || 1,
-          negativeMarks: settings.enableNegativeMarks ? Number(negativeValue) || 0 : 0,
-        })),
-        version: published ? version + 1 : version,
-        published: true,
-        createdAt: new Date().toISOString(),
-      };
-
       await saveQuizToCloud(quiz);
-      setCode(quizCode);
+      setCode(quiz.code);
       setVersion(quiz.version);
-      setPublished(true);
-      toast.success(`Published — quiz code ${quizCode}`);
-      navigate({ to: "/admin/questions" });
+      setPublished(quiz.published);
+      setErrors({});
+      toast.success(publish ? `Published — quiz code ${quiz.code}` : "Draft saved");
+      if (publish) navigate({ to: "/admin/questions" });
     } catch (e) {
-      const msg = String((e as Error)?.message ?? e);
-      toast.error(
-        msg.includes("timed out")
-          ? "Saving is taking too long — check this device's internet and try again. Your work is kept on this device."
-          : msg.toLowerCase().includes("permission")
-            ? "Publishing is blocked by the quiz database permissions. Ask the project owner to publish the coordinator access rules."
-            : "Could not publish the quiz",
-      );
+      saveError(e);
     } finally {
       setBusy(false);
     }
   }
 
-  const toggles: { key: keyof QuizSettings; label: string }[] = [
+  const toggles: { key: keyof QuizSettings; label: string; hint?: string }[] = [
     { key: "shuffleQuestions", label: "Shuffle questions" },
     { key: "shuffleOptions", label: "Shuffle options" },
     { key: "showResultImmediately", label: "Show result immediately" },
-    { key: "allowOffline", label: "Allow offline quiz" },
-    { key: "allowMultipleAttempts", label: "Multiple attempts" },
-    { key: "enableNegativeMarks", label: "Negative marks" },
+    {
+      key: "allowOffline",
+      label: "Allow offline quiz",
+      hint: "Participants prepare the quiz online and complete it offline.",
+    },
+    { key: "allowMultipleAttempts", label: "Allow multiple attempts" },
+    { key: "enableNegativeMarks", label: "Enable negative marks" },
   ];
+
+  const err = (k: string) =>
+    errors[k] ? <p className="text-xs font-medium text-destructive">{errors[k]}</p> : null;
 
   return (
     <div className="space-y-6 pb-10">
@@ -189,9 +219,14 @@ function CreateQuiz() {
             {totalMarks === 1 ? "Mark" : "Marks"} • {Number(durationMinutes) || 0} Minutes
           </p>
         </div>
-        <Button disabled={busy} onClick={() => void publishQuiz()}>
-          Publish
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" disabled={busy} onClick={() => void save(false)}>
+            Save draft
+          </Button>
+          <Button disabled={busy} onClick={() => void save(true)}>
+            Publish
+          </Button>
+        </div>
       </div>
 
       {published && code && (
@@ -212,21 +247,23 @@ function CreateQuiz() {
       <section className="surface-card space-y-4 p-5">
         <h2 className="text-base font-semibold">Quiz information</h2>
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
+          <div id="field-title" className="space-y-2">
             <Label htmlFor="title">Quiz title</Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="AITHERA Quiz Challenge" />
+            {err("title")}
           </div>
-          <div className="space-y-2">
+          <div id="field-code" className="space-y-2">
             <Label htmlFor="code">Quiz code</Label>
             <Input
               id="code"
               value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              onChange={(e) => setCode(sanitizeCode(e.target.value))}
               placeholder="AITHERA26"
               className="font-mono tracking-widest"
             />
+            {err("code")}
           </div>
-          <div className="space-y-2">
+          <div id="field-duration" className="space-y-2">
             <Label htmlFor="duration">Duration (minutes)</Label>
             <Input
               id="duration"
@@ -235,8 +272,9 @@ function CreateQuiz() {
               value={durationMinutes}
               onChange={(e) => setDuration(Number(e.target.value))}
             />
+            {err("duration")}
           </div>
-          <div className="space-y-2">
+          <div id="field-marks" className="space-y-2">
             <Label htmlFor="marks">Marks per question</Label>
             <Input
               id="marks"
@@ -245,24 +283,28 @@ function CreateQuiz() {
               value={marksPerQuestion}
               onChange={(e) => setMarksPerQuestion(Number(e.target.value))}
             />
+            {err("marks")}
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="instructions">Instructions</Label>
-          <Textarea id="instructions" value={instructions} onChange={(e) => setInstructions(e.target.value)} rows={5} />
+          <Label htmlFor="instructions">Instructions for participants</Label>
+          <Textarea id="instructions" value={instructions} onChange={(e) => setInstructions(e.target.value)} rows={4} />
         </div>
       </section>
 
       <section className="surface-card space-y-3 p-5">
         <h2 className="text-base font-semibold">Competition settings</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {toggles.map((t) => (
-            <label key={t.key} className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2 text-sm">
-              {t.label}
-              <Switch
-                checked={settings[t.key]}
-                onCheckedChange={(v) => setSettings((s) => ({ ...s, [t.key]: v }))}
-              />
+            <label key={t.key} className="rounded-lg border border-border px-3 py-2 text-sm">
+              <span className="flex items-center justify-between gap-3">
+                {t.label}
+                <Switch
+                  checked={settings[t.key]}
+                  onCheckedChange={(v) => setSettings((s) => ({ ...s, [t.key]: v }))}
+                />
+              </span>
+              {t.hint && <span className="mt-1 block text-xs text-muted-foreground">{t.hint}</span>}
             </label>
           ))}
         </div>
@@ -284,13 +326,17 @@ function CreateQuiz() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold">Questions</h2>
-          <Button variant="outline" size="sm" onClick={() => setQuestions((qs) => [...qs, emptyQuestion()])}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setQuestions((qs) => [...qs, newQuestion(Number(marksPerQuestion) || 1)])}
+          >
             <Plus className="size-4" /> Add question
           </Button>
         </div>
 
         {questions.map((q, index) => (
-          <div key={q.id} className="surface-card space-y-4 p-5">
+          <div key={q.id} id={`field-q-${q.id}`} className="surface-card space-y-4 p-5">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold">Question {index + 1}</p>
               <div className="flex gap-1">
@@ -340,7 +386,7 @@ function CreateQuiz() {
                   </span>
                   <Input
                     value={opt}
-                    placeholder={`Option ${String.fromCharCode(65 + oi)}`}
+                    placeholder={`Enter option ${String.fromCharCode(65 + oi)}`}
                     onChange={(e) =>
                       patchQuestion(q.id, { options: q.options.map((o, i) => (i === oi ? e.target.value : o)) })
                     }
@@ -350,10 +396,16 @@ function CreateQuiz() {
               ))}
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              Marks: {Number(marksPerQuestion) || 0}
-              {settings.enableNegativeMarks ? ` · Negative: ${Number(negativeValue) || 0}` : ""}
-            </p>
+            <div className="max-w-[140px] space-y-2">
+              <Label>Marks</Label>
+              <Input
+                type="number"
+                min={1}
+                value={q.marks}
+                onChange={(e) => patchQuestion(q.id, { marks: Number(e.target.value) })}
+              />
+            </div>
+            {err(`q-${q.id}`)}
           </div>
         ))}
       </section>
