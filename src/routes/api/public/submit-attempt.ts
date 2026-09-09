@@ -102,6 +102,8 @@ export const Route = createFileRoute("/api/public/submit-attempt")({
           await setDocument(`attempts/${parsed.attemptId}`, {
             ...parsed,
             registerNumber: parsed.registerNumber ?? parsed.roleNumber,
+            // Stored security rules require this exact field name.
+            participantName: parsed.studentName,
             correct,
             wrong,
             unanswered,
@@ -111,9 +113,15 @@ export const Route = createFileRoute("/api/public/submit-attempt")({
             syncStatus: "SYNCED",
             serverReceivedAt: new Date().toISOString(),
           } as never);
-        } catch {
-          return json({ error: "Could not store the submission" }, 502);
+        } catch (e) {
+          // A retry of an already-stored submission is a success, not a failure.
+          const existing = await getDocument<{ attemptId?: string }>(`attempts/${parsed.attemptId}`);
+          if (existing?.attemptId === parsed.attemptId) {
+            return json({ ok: true, attemptId: parsed.attemptId, score, percentage, duplicate: true });
+          }
+          return json({ error: "Could not store the submission", detail: String(e).slice(0, 300) }, 502);
         }
+
 
         return json({ ok: true, attemptId: parsed.attemptId, score, percentage });
       },
