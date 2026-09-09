@@ -10,33 +10,148 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as JoinRouteImport } from './routes/join'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as TeacherRouteImport } from './routes/teacher'
+import { Route as AttemptAttemptIdRouteImport } from './routes/attempt.$attemptId'
+import { Route as ResultAttemptIdRouteImport } from './routes/result.$attemptId'
+import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
+import { Route as TeacherCreateRouteImport } from './routes/teacher.create'
+import { Route as TeacherQuizzesRouteImport } from './routes/teacher.quizzes'
+import { Route as TeacherResultsRouteImport } from './routes/teacher.results'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeacherRoute = TeacherRouteImport.update({
+  id: '/teacher',
+  path: '/teacher',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AttemptAttemptIdRoute = AttemptAttemptIdRouteImport.update({
+  id: '/attempt/$attemptId',
+  path: '/attempt/$attemptId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultAttemptIdRoute = ResultAttemptIdRouteImport.update({
+  id: '/result/$attemptId',
+  path: '/result/$attemptId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeacherIndexRoute = TeacherIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherCreateRoute = TeacherCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherQuizzesRoute = TeacherQuizzesRouteImport.update({
+  id: '/quizzes',
+  path: '/quizzes',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherResultsRoute = TeacherResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => TeacherRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/join': typeof JoinRoute
+  '/login': typeof LoginRoute
+  '/teacher': typeof TeacherRouteWithChildren
+  '/attempt/$attemptId': typeof AttemptAttemptIdRoute
+  '/result/$attemptId': typeof ResultAttemptIdRoute
+  '/teacher/create': typeof TeacherCreateRoute
+  '/teacher/quizzes': typeof TeacherQuizzesRoute
+  '/teacher/results': typeof TeacherResultsRoute
+  '/teacher/': typeof TeacherIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/join': typeof JoinRoute
+  '/login': typeof LoginRoute
+  '/attempt/$attemptId': typeof AttemptAttemptIdRoute
+  '/result/$attemptId': typeof ResultAttemptIdRoute
+  '/teacher/create': typeof TeacherCreateRoute
+  '/teacher/quizzes': typeof TeacherQuizzesRoute
+  '/teacher/results': typeof TeacherResultsRoute
+  '/teacher': typeof TeacherIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/join': typeof JoinRoute
+  '/login': typeof LoginRoute
+  '/teacher': typeof TeacherRouteWithChildren
+  '/attempt/$attemptId': typeof AttemptAttemptIdRoute
+  '/result/$attemptId': typeof ResultAttemptIdRoute
+  '/teacher/create': typeof TeacherCreateRoute
+  '/teacher/quizzes': typeof TeacherQuizzesRoute
+  '/teacher/results': typeof TeacherResultsRoute
+  '/teacher/': typeof TeacherIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/join'
+    | '/login'
+    | '/teacher'
+    | '/attempt/$attemptId'
+    | '/result/$attemptId'
+    | '/teacher/create'
+    | '/teacher/quizzes'
+    | '/teacher/results'
+    | '/teacher/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/join'
+    | '/login'
+    | '/attempt/$attemptId'
+    | '/result/$attemptId'
+    | '/teacher/create'
+    | '/teacher/quizzes'
+    | '/teacher/results'
+    | '/teacher'
+  id:
+    | '__root__'
+    | '/'
+    | '/join'
+    | '/login'
+    | '/teacher'
+    | '/attempt/$attemptId'
+    | '/result/$attemptId'
+    | '/teacher/create'
+    | '/teacher/quizzes'
+    | '/teacher/results'
+    | '/teacher/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  JoinRoute: typeof JoinRoute
+  LoginRoute: typeof LoginRoute
+  TeacherRoute: typeof TeacherRouteWithChildren
+  AttemptAttemptIdRoute: typeof AttemptAttemptIdRoute
+  ResultAttemptIdRoute: typeof ResultAttemptIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +163,96 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teacher': {
+      id: '/teacher'
+      path: '/teacher'
+      fullPath: '/teacher'
+      preLoaderRoute: typeof TeacherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/attempt/$attemptId': {
+      id: '/attempt/$attemptId'
+      path: '/attempt/$attemptId'
+      fullPath: '/attempt/$attemptId'
+      preLoaderRoute: typeof AttemptAttemptIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/result/$attemptId': {
+      id: '/result/$attemptId'
+      path: '/result/$attemptId'
+      fullPath: '/result/$attemptId'
+      preLoaderRoute: typeof ResultAttemptIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teacher/': {
+      id: '/teacher/'
+      path: '/'
+      fullPath: '/teacher/'
+      preLoaderRoute: typeof TeacherIndexRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/create': {
+      id: '/teacher/create'
+      path: '/create'
+      fullPath: '/teacher/create'
+      preLoaderRoute: typeof TeacherCreateRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/quizzes': {
+      id: '/teacher/quizzes'
+      path: '/quizzes'
+      fullPath: '/teacher/quizzes'
+      preLoaderRoute: typeof TeacherQuizzesRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/results': {
+      id: '/teacher/results'
+      path: '/results'
+      fullPath: '/teacher/results'
+      preLoaderRoute: typeof TeacherResultsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
   }
 }
 
+interface TeacherRouteChildren {
+  TeacherCreateRoute: typeof TeacherCreateRoute
+  TeacherQuizzesRoute: typeof TeacherQuizzesRoute
+  TeacherResultsRoute: typeof TeacherResultsRoute
+  TeacherIndexRoute: typeof TeacherIndexRoute
+}
+
+const TeacherRouteChildren: TeacherRouteChildren = {
+  TeacherCreateRoute: TeacherCreateRoute,
+  TeacherQuizzesRoute: TeacherQuizzesRoute,
+  TeacherResultsRoute: TeacherResultsRoute,
+  TeacherIndexRoute: TeacherIndexRoute,
+}
+
+const TeacherRouteWithChildren =
+  TeacherRoute._addFileChildren(TeacherRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  JoinRoute: JoinRoute,
+  LoginRoute: LoginRoute,
+  TeacherRoute: TeacherRouteWithChildren,
+  AttemptAttemptIdRoute: AttemptAttemptIdRoute,
+  ResultAttemptIdRoute: ResultAttemptIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
