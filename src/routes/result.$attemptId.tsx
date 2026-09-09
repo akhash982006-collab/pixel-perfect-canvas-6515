@@ -11,9 +11,9 @@ import type { Attempt, OfflineQuiz } from "@/lib/types";
 export const Route = createFileRoute("/result/$attemptId")({
   head: () => ({
     meta: [
-      { title: "Quiz result — Offline Quiz Platform" },
+      { title: "Quiz result — AITHERA QUIZ" },
       { name: "description", content: "Your score, correct and incorrect answers, and the sync status of your submission." },
-      { property: "og:title", content: "Quiz result — Offline Quiz Platform" },
+      { property: "og:title", content: "Quiz result — AITHERA QUIZ" },
       { property: "og:description", content: "Score summary and submission sync status." },
       { name: "robots", content: "noindex" },
     ],
@@ -60,7 +60,7 @@ function ResultPage() {
     <div className="hero-surface min-h-screen">
       <header className="flex items-center justify-between px-5 py-4">
         <Link to="/" className="font-semibold">
-          Offline Quiz Platform
+          AITHERA QUIZ
         </Link>
         <StatusPill />
       </header>
@@ -132,7 +132,7 @@ function ResultPage() {
           </div>
 
           <Button asChild variant="ghost" className="mt-6">
-            <Link to="/join">Back to quizzes</Link>
+            <Link to="/participant-details">Back to quizzes</Link>
           </Button>
         </div>
       </div>

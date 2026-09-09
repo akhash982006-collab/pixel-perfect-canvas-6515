@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useTeacherQuizzes } from "@/hooks/use-teacher-data";
 import { deleteQuizFromCloud } from "@/lib/cloud";
 
-export const Route = createFileRoute("/teacher/quizzes")({
+export const Route = createFileRoute("/admin/questions")({
   head: () => ({
     meta: [
-      { title: "My quizzes — Offline Quiz Platform" },
+      { title: "My quizzes — AITHERA QUIZ" },
       { name: "description", content: "All quizzes you created, their quiz codes and publication status." },
-      { property: "og:title", content: "My quizzes — Offline Quiz Platform" },
+      { property: "og:title", content: "My quizzes — AITHERA QUIZ" },
       { property: "og:description", content: "Manage quizzes, copy quiz codes and edit questions." },
     ],
   }),
@@ -34,7 +34,7 @@ function QuizList() {
           <p className="text-sm text-muted-foreground">Share the code with students so they can load the quiz.</p>
         </div>
         <Button asChild>
-          <Link to="/teacher/create">Create quiz</Link>
+          <Link to="/admin/create">Create quiz</Link>
         </Button>
       </div>
 
@@ -45,7 +45,7 @@ function QuizList() {
           <p className="font-medium">No quizzes yet</p>
           <p className="mt-1 text-sm text-muted-foreground">Create your first quiz and publish it to get a code.</p>
           <Button asChild className="mt-5">
-            <Link to="/teacher/create">Create quiz</Link>
+            <Link to="/admin/create">Create quiz</Link>
           </Button>
         </div>
       )}
@@ -86,7 +86,7 @@ function QuizList() {
 
             <div className="mt-4 flex gap-2">
               <Button asChild variant="outline" size="sm">
-                <Link to="/teacher/create" search={{ id: q.id }}>
+                <Link to="/admin/create" search={{ id: q.id }}>
                   <Pencil className="size-4" /> Edit
                 </Link>
               </Button>

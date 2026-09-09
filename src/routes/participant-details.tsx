@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, CloudDownload, GraduationCap } from "lucide-react";
+import { CheckCircle2, CloudDownload, LogOut, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusPill } from "@/components/status-pill";
+import { useAuth } from "@/hooks/use-auth";
 import { findQuizByCode } from "@/lib/cloud";
 import {
   getStudentSession,
@@ -16,28 +17,40 @@ import {
 } from "@/lib/db";
 import type { Attempt, OfflineQuiz, Quiz } from "@/lib/types";
 
-export const Route = createFileRoute("/join")({
+export const Route = createFileRoute("/participant-details")({
   head: () => ({
     meta: [
-      { title: "Join a quiz — Offline Quiz Platform" },
-      { name: "description", content: "Enter your name, register number and quiz code, then prepare the quiz for offline use." },
-      { property: "og:title", content: "Join a quiz — Offline Quiz Platform" },
-      { property: "og:description", content: "Load a quiz onto your device and write it without internet." },
+      { title: "Your details — AITHERA QUIZ" },
+      { name: "description", content: "Confirm your details and prepare the AITHERA 2026 quiz for offline use." },
+      { property: "og:title", content: "Your details — AITHERA QUIZ" },
+      { property: "og:description", content: "Prepare the AITHERA 2026 quiz on your device before going offline." },
     ],
   }),
-  component: JoinPage,
+  component: ParticipantDetailsPage,
 });
 
-function JoinPage() {
+function ParticipantDetailsPage() {
   const navigate = useNavigate();
+  const { user, role, loading, checking, logout } = useAuth();
   const [studentName, setName] = useState("");
   const [registerNumber, setReg] = useState("");
+  const [college, setCollege] = useState("");
+  const [department, setDepartment] = useState("");
   const [code, setCode] = useState("");
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [offline, setOffline] = useState<OfflineQuiz | null>(null);
   const [progress, setProgress] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState<{ quizzes: OfflineQuiz[]; attempts: Attempt[] }>({ quizzes: [], attempts: [] });
+
+  useEffect(() => {
+    if (loading || checking) return;
+    if (!user) {
+      void navigate({ to: "/login", replace: true });
+      return;
+    }
+    if (role === "admin") void navigate({ to: "/admin/dashboard", replace: true });
+  }, [loading, checking, user, role, navigate]);
 
   useEffect(() => {
     void getStudentSession().then((s) => {
@@ -49,7 +62,13 @@ function JoinPage() {
     void Promise.all([listOfflineQuizzes(), listAttempts()]).then(([quizzes, attempts]) =>
       setSaved({ quizzes, attempts }),
     );
+    setCollege(localStorage.getItem("aithera.college") ?? "");
+    setDepartment(localStorage.getItem("aithera.department") ?? "");
   }, []);
+
+  useEffect(() => {
+    if (user && !studentName) setName(user.name);
+  }, [user, studentName]);
 
   async function findQuiz(e: React.FormEvent) {
     e.preventDefault();
@@ -60,6 +79,8 @@ function JoinPage() {
     setBusy(true);
     try {
       await saveStudentSession({ studentName: studentName.trim(), registerNumber: registerNumber.trim() });
+      localStorage.setItem("aithera.college", college.trim());
+      localStorage.setItem("aithera.department", department.trim());
       const found = await findQuizByCode(code);
       if (!found) {
         toast.error("No published quiz found for that code");
@@ -79,16 +100,21 @@ function JoinPage() {
   async function prepareOffline() {
     if (!quiz) return;
     setBusy(true);
-    const steps = ["Downloading quiz…", "Saving questions…", "Preparing offline mode…"];
+    const steps = ["Participant verified…", "Quiz downloaded…", "Questions saved…", "Offline storage ready…"];
     for (const s of steps) {
       setProgress(s);
       await new Promise((r) => setTimeout(r, 400));
     }
-    const stored = await saveOfflineQuiz(quiz);
-    setOffline(stored);
-    setProgress(null);
-    setBusy(false);
-    toast.success("Quiz ready offline. You can disconnect now.");
+    try {
+      const stored = await saveOfflineQuiz(quiz);
+      setOffline(stored);
+      toast.success("Quiz ready offline. You can disconnect now.");
+    } catch {
+      toast.error("We couldn't prepare the quiz for offline use. Please contact the event coordinator.");
+    } finally {
+      setProgress(null);
+      setBusy(false);
+    }
   }
 
   function goToOfflineCheck(target: OfflineQuiz) {
@@ -97,31 +123,58 @@ function JoinPage() {
 
   const resumable = saved.attempts.filter((a) => a.status === "IN_PROGRESS");
 
+  if (loading || checking || !user || role === "admin") {
+    return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Checking access…</div>;
+  }
+
   return (
     <div className="hero-surface min-h-screen">
       <header className="flex items-center justify-between px-5 py-4">
         <Link to="/" className="flex items-center gap-2 font-semibold">
           <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <GraduationCap className="size-5" />
+            <Sparkles className="size-5" />
           </span>
-          Offline Quiz Platform
+          AITHERA QUIZ
         </Link>
-        <StatusPill />
+        <div className="flex items-center gap-3">
+          <StatusPill />
+          <Button variant="ghost" size="sm" className="gap-2" onClick={() => void logout()}>
+            <LogOut className="size-4" /> Sign out
+          </Button>
+        </div>
       </header>
 
       <div className="mx-auto grid max-w-4xl gap-6 px-5 py-8 md:grid-cols-2">
         <form onSubmit={findQuiz} className="surface-card space-y-4 p-6">
           <div>
-            <h1 className="text-xl font-semibold">Join a quiz</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Your details stay on this device.</p>
+            <h1 className="text-xl font-semibold">Your details</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Signed in as {user.email}</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sname">Student name</Label>
+            <Label htmlFor="sname">Full name</Label>
             <Input id="sname" value={studentName} onChange={(e) => setName(e.target.value)} placeholder="Ravi Kumar" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="reg">Register number</Label>
             <Input id="reg" value={registerNumber} onChange={(e) => setReg(e.target.value)} placeholder="21AD045" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="college">College</Label>
+            <Input
+              id="college"
+              value={college}
+              onChange={(e) => setCollege(e.target.value)}
+              placeholder="St. Xavier's Catholic College of Engineering"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="department">Department</Label>
+            <Input
+              id="department"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              placeholder="Artificial Intelligence and Data Science"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="code">Quiz code</Label>

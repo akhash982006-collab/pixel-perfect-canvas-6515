@@ -4,12 +4,12 @@ import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTeacherAttempts, useTeacherQuizzes } from "@/hooks/use-teacher-data";
 
-export const Route = createFileRoute("/teacher/results")({
+export const Route = createFileRoute("/admin/results")({
   head: () => ({
     meta: [
-      { title: "Results & leaderboard — Offline Quiz Platform" },
+      { title: "Results & leaderboard — AITHERA QUIZ" },
       { name: "description", content: "See who attempted each quiz, their scores, ranking and submission sync state." },
-      { property: "og:title", content: "Results — Offline Quiz Platform" },
+      { property: "og:title", content: "Results — AITHERA QUIZ" },
       { property: "og:description", content: "Scores, ranking and sync status for every submission." },
     ],
   }),

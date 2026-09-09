@@ -14,12 +14,12 @@ export const Route = createFileRoute("/quiz/offline-check")({
   validateSearch: z.object({ quizId: z.string() }),
   head: () => ({
     meta: [
-      { title: "Ready to start? — Offline Quiz Platform" },
+      { title: "Ready to start? — AITHERA QUIZ" },
       {
         name: "description",
         content: "Confirm the quiz is stored on your device and the internet is switched off before you start.",
       },
-      { property: "og:title", content: "Ready to start? — Offline Quiz Platform" },
+      { property: "og:title", content: "Ready to start? — AITHERA QUIZ" },
       { property: "og:description", content: "The quiz can only begin once this device is fully offline." },
       { name: "robots", content: "noindex" },
     ],
@@ -173,7 +173,7 @@ function OfflineCheckPage() {
 
           <p className="text-center text-xs text-muted-foreground">
             Wrong quiz?{" "}
-            <Link to="/join" className="text-primary underline-offset-4 hover:underline">
+            <Link to="/participant-details" className="text-primary underline-offset-4 hover:underline">
               Go back
             </Link>
           </p>

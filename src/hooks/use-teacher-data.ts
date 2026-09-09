@@ -1,19 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { listCloudAttempts, listTeacherQuizzes } from "@/lib/cloud";
-import { useTeacherAuth } from "./use-teacher-auth";
+import { useAuth } from "./use-auth";
 
 export function useTeacherQuizzes() {
-  const { teacher } = useTeacherAuth();
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ["teacher-quizzes", teacher?.uid],
-    enabled: Boolean(teacher),
-    queryFn: () => listTeacherQuizzes(teacher!.uid),
+    queryKey: ["admin-quizzes", user?.uid],
+    enabled: Boolean(user),
+    queryFn: () => listTeacherQuizzes(user!.uid),
   });
 }
 
 export function useTeacherAttempts(quizIds: string[]) {
   return useQuery({
-    queryKey: ["teacher-attempts", quizIds.slice().sort().join(",")],
+    queryKey: ["admin-attempts", quizIds.slice().sort().join(",")],
     enabled: quizIds.length >= 0,
     queryFn: () => listCloudAttempts(quizIds),
   });
