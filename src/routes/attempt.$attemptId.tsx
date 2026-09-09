@@ -236,6 +236,7 @@ function AttemptPage() {
                 <button
                   key={oi}
                   type="button"
+                  disabled={locked}
                   onClick={() => void update({ selectedIndex: oi })}
                   className={
                     "flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors " +
@@ -257,23 +258,24 @@ function AttemptPage() {
           </div>
 
           <div className="mt-6 flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" disabled={index === 0} onClick={() => setIndex((i) => i - 1)}>
+            <Button variant="outline" size="sm" disabled={locked || index === 0} onClick={() => setIndex((i) => i - 1)}>
               Previous
             </Button>
             <Button
               variant="outline"
               size="sm"
-              disabled={index === questions.length - 1}
+              disabled={locked || index === questions.length - 1}
               onClick={() => setIndex((i) => i + 1)}
             >
               Next
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => void update({ selectedIndex: null })}>
+            <Button variant="ghost" size="sm" disabled={locked} onClick={() => void update({ selectedIndex: null })}>
               Clear answer
             </Button>
             <Button
               variant="ghost"
               size="sm"
+              disabled={locked}
               onClick={() => void update({ markedForReview: !attempt.answers[current.id]?.markedForReview })}
             >
               <Flag className="size-4" /> Mark for review
