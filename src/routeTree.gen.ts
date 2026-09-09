@@ -20,6 +20,7 @@ import { Route as AdminLeaderboardRouteImport } from './routes/admin.leaderboard
 import { Route as AdminParticipantsRouteImport } from './routes/admin.participants'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AttemptAttemptIdRouteImport } from './routes/attempt.$attemptId'
 import { Route as QuizOfflineCheckRouteImport } from './routes/quiz.offline-check'
 import { Route as ResultAttemptIdRouteImport } from './routes/result.$attemptId'
@@ -80,6 +81,11 @@ const AdminResultsRoute = AdminResultsRouteImport.update({
   path: '/results',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AttemptAttemptIdRoute = AttemptAttemptIdRouteImport.update({
   id: '/attempt/$attemptId',
   path: '/attempt/$attemptId',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/admin/participants'
     | '/admin/questions'
     | '/admin/results'
+    | '/admin/settings'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/admin/participants'
     | '/admin/questions'
     | '/admin/results'
+    | '/admin/settings'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/admin/participants'
     | '/admin/questions'
     | '/admin/results'
+    | '/admin/settings'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
@@ -296,6 +308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminResultsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/attempt/$attemptId': {
       id: '/attempt/$attemptId'
       path: '/attempt/$attemptId'
@@ -334,6 +353,7 @@ interface AdminRouteChildren {
   AdminParticipantsRoute: typeof AdminParticipantsRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminResultsRoute: typeof AdminResultsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -344,6 +364,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminParticipantsRoute: AdminParticipantsRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminResultsRoute: AdminResultsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
