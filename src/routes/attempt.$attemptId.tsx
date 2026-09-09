@@ -145,7 +145,7 @@ function AttemptPage() {
   );
 
   async function update(patch: Partial<{ selectedIndex: number | null; markedForReview: boolean }>) {
-    if (!attempt || !current) return;
+    if (!attempt || !current || locked) return;
     setSaveState("saving");
     const prev = attempt.answers[current.id];
     const next: Attempt = {
@@ -194,7 +194,22 @@ function AttemptPage() {
                 `${answeredCount}/${questions.length} answered`
               )}
             </span>
-            <StatusPill />
+            <span
+              className={
+                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold " +
+                (connectivity === "offline"
+                  ? "bg-success/15 text-success"
+                  : connectivity === "online"
+                    ? "bg-destructive/10 text-destructive"
+                    : "bg-secondary text-muted-foreground")
+              }
+            >
+              {connectivity === "offline"
+                ? "Offline ✓"
+                : connectivity === "online"
+                  ? "Internet detected"
+                  : "Checking connection…"}
+            </span>
             <span
               className={
                 "inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-sm font-semibold " +
