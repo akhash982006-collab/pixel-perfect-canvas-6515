@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useConnectivity } from "@/hooks/use-connectivity";
 import { getOfflineQuiz, getStudentSession, listAttempts, putAttempt } from "@/lib/db";
 import { hasInternetAccess } from "@/services/connectivityService";
+import { setActiveAttemptId } from "@/lib/active-attempt";
 import { uid } from "@/lib/quiz-utils";
 import type { Attempt, OfflineQuiz } from "@/lib/types";
 
@@ -80,7 +81,8 @@ function OfflineCheckPage() {
         return;
       }
       if (resumable) {
-        navigate({ to: "/attempt/$attemptId", params: { attemptId: resumable.attemptId } });
+        setActiveAttemptId(resumable.attemptId);
+        navigate({ to: "/attempt" });
         return;
       }
       const now = new Date();
@@ -101,7 +103,8 @@ function OfflineCheckPage() {
         connectionEvents: [],
       };
       await putAttempt(attempt);
-      navigate({ to: "/attempt/$attemptId", params: { attemptId: attempt.attemptId } });
+      setActiveAttemptId(attempt.attemptId);
+      navigate({ to: "/attempt" });
     } finally {
       setStarting(false);
     }
