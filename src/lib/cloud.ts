@@ -25,22 +25,45 @@ import type { Attempt, Quiz } from "./types";
  */
 export const cloudMode = () => (isFirebaseConfigured ? "firebase" : "local");
 
+/** Never let a cloud call hang forever (blocked networks, offline devices). */
+function withTimeout<T>(p: Promise<T>, ms = 12000, label = "Cloud request"): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`${label} timed out`)), ms);
+    p.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(t);
+        reject(e);
+      },
+    );
+  });
+}
+
 export async function saveQuizToCloud(quiz: Quiz) {
   const db = getDbFirestore();
   if (!db) return localCloudPutQuiz(quiz);
-  await setDoc(doc(db, "quizzes", quiz.id), quiz);
+  // keep a local copy first so nothing is lost if the network is slow
+  await localCloudPutQuiz(quiz);
+  await withTimeout(setDoc(doc(db, "quizzes", quiz.id), quiz), 12000, "Saving the quiz");
 }
 
 export async function deleteQuizFromCloud(id: string) {
   const db = getDbFirestore();
   if (!db) return localCloudDeleteQuiz(id);
-  await deleteDoc(doc(db, "quizzes", id));
+  await withTimeout(deleteDoc(doc(db, "quizzes", id)), 12000, "Deleting the quiz");
 }
 
 export async function listTeacherQuizzes(teacherId: string): Promise<Quiz[]> {
   const db = getDbFirestore();
   if (!db) return (await localCloudListQuizzes()).filter((q) => q.teacherId === teacherId);
-  const snap = await getDocs(query(collection(db, "quizzes"), where("teacherId", "==", teacherId)));
+  const snap = await withTimeout(
+    getDocs(query(collection(db, "quizzes"), where("teacherId", "==", teacherId))),
+    12000,
+    "Loading quizzes",
+  );
   return snap.docs.map((d) => d.data() as Quiz);
 }
 

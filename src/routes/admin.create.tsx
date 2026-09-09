@@ -129,8 +129,15 @@ function CreateQuiz() {
       setPublished(quiz.published);
       toast.success(publish ? `Published with code ${quizCode}` : "Draft saved");
       if (publish) navigate({ to: "/admin/questions" });
-    } catch {
-      toast.error("Could not save the quiz");
+    } catch (e) {
+      const msg = String((e as Error)?.message ?? e);
+      toast.error(
+        msg.includes("timed out")
+          ? "Saving is taking too long — check this device's internet and try again. Your work is kept on this device."
+          : msg.includes("permission")
+            ? "This account is not allowed to save quizzes yet."
+            : "Could not save the quiz",
+      );
     } finally {
       setBusy(false);
     }
