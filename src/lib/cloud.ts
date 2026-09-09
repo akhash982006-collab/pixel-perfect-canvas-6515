@@ -1,4 +1,5 @@
-import { isFirebaseConfigured } from "./firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { getDbFirestore, isFirebaseConfigured } from "./firebase";
 import {
   deleteFirestoreDocument,
   getFirestoreDocument,
@@ -45,7 +46,10 @@ export async function findQuizByCode(code: string): Promise<Quiz | null> {
     const all = await localCloudListQuizzes();
     return all.find((q) => q.code === wanted && q.published) ?? null;
   }
-  return (await listFirestoreDocuments<Quiz>("quizzes")).find((quiz) => quiz.code === wanted && quiz.published) ?? null;
+  const db = getDbFirestore();
+  if (!db) return null;
+  const snap = await getDocs(query(collection(db, "quizzes"), where("code", "==", wanted), where("published", "==", true)));
+  return snap.docs[0]?.data() as Quiz | undefined ?? null;
 }
 
 export async function getQuizFromCloud(id: string): Promise<Quiz | null> {
