@@ -6,7 +6,7 @@ import { StatusPill } from "@/components/status-pill";
 import { getAttempt, getOfflineQuiz } from "@/lib/db";
 import { getActiveAttemptId } from "@/lib/active-attempt";
 import { runSync } from "@/lib/sync";
-import { formatClock } from "@/lib/quiz-utils";
+import { calculateTimeTaken, formatQuizTime, formatScore } from "@/utils/leaderboard";
 import type { Attempt, OfflineQuiz } from "@/lib/types";
 
 export const Route = createFileRoute("/result")({
@@ -49,9 +49,8 @@ function ResultPage() {
   }
 
   const showScore = quiz?.settings.showResultImmediately ?? true;
-  const timeTaken = attempt.endTime
-    ? formatClock(new Date(attempt.endTime).getTime() - new Date(attempt.startTime).getTime())
-    : "—";
+  const timeTakenMs = attempt.timeTaken ?? calculateTimeTaken(attempt.startTime, attempt.endTime);
+  const timeTaken = attempt.endTime ? formatQuizTime(timeTakenMs) : "—";
 
   const stats = [
     { label: "Correct", value: attempt.correct ?? 0 },
@@ -81,7 +80,12 @@ function ResultPage() {
 
           {showScore ? (
             <>
-              <p className="mt-6 text-5xl font-bold">{attempt.score ?? 0}</p>
+              <p className="mt-6 text-5xl font-bold">
+                {formatScore(attempt.score)}
+                {attempt.totalMarks ? (
+                  <span className="text-2xl text-muted-foreground"> / {attempt.totalMarks}</span>
+                ) : null}
+              </p>
               <p className="mt-1 text-sm text-muted-foreground">{attempt.percentage ?? 0}% score</p>
               <p
                 className={

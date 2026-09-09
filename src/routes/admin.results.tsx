@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTeacherAttempts, useTeacherQuizzes } from "@/hooks/use-teacher-data";
+import { formatQuizTime, formatScore, rankResults } from "@/utils/leaderboard";
 
 export const Route = createFileRoute("/admin/results")({
   head: () => ({
@@ -23,23 +24,38 @@ function Results() {
 
   const rows = useMemo(
     () =>
-      attempts
-        .filter((a) => a.status === "SUBMITTED" && (quizId === "all" || a.quizId === quizId))
-        .sort((a, b) => (b.score ?? 0) - (a.score ?? 0)),
+      rankResults(attempts.filter((a) => a.status === "SUBMITTED" && (quizId === "all" || a.quizId === quizId))),
     [attempts, quizId],
   );
 
   function exportCsv() {
-    const header = ["Rank", "Student", "Role number", "Quiz", "Score", "Percentage", "Result", "Submitted at"];
-    const lines = rows.map((a, i) =>
+    const header = [
+      "Rank",
+      "Student",
+      "Role number",
+      "Quiz",
+      "Score",
+      "Total marks",
+      "Correct",
+      "Wrong",
+      "Unanswered",
+      "Percentage",
+      "Time taken",
+      "Submitted at",
+    ];
+    const lines = rows.map((a) =>
       [
-        i + 1,
+        a.rank,
         a.studentName,
         a.roleNumber ?? a.registerNumber,
         a.quizTitle,
-        a.score ?? 0,
+        formatScore(a.score),
+        a.totalMarks ?? "",
+        a.correct ?? 0,
+        a.wrong ?? 0,
+        a.unanswered ?? 0,
         `${a.percentage ?? 0}%`,
-        a.passed ? "Pass" : "Fail",
+        formatQuizTime(a.timeTaken),
         a.endTime ?? "",
       ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
@@ -59,7 +75,9 @@ function Results() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Results</h1>
-          <p className="text-sm text-muted-foreground">Ranked by score. Highest first.</p>
+          <p className="text-sm text-muted-foreground">
+            Ranked by score, then by fastest completion time, then by earliest submission.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <select
@@ -84,11 +102,14 @@ function Results() {
         <table className="w-full text-sm">
           <thead className="border-b border-border text-left text-muted-foreground">
             <tr>
-              <th className="px-4 py-3 font-medium">#</th>
+              <th className="px-4 py-3 font-medium">Rank</th>
               <th className="px-4 py-3 font-medium">Student</th>
               <th className="px-4 py-3 font-medium">Role number</th>
               <th className="px-4 py-3 font-medium">Quiz</th>
               <th className="px-4 py-3 font-medium">Score</th>
+              <th className="px-4 py-3 font-medium">Correct</th>
+              <th className="px-4 py-3 font-medium">Wrong</th>
+              <th className="px-4 py-3 font-medium">Time taken</th>
               <th className="px-4 py-3 font-medium">Result</th>
               <th className="px-4 py-3 font-medium">Connection events</th>
               <th className="px-4 py-3 font-medium">Sync</th>
@@ -97,20 +118,25 @@ function Results() {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={11} className="px-4 py-10 text-center text-muted-foreground">
                   No submissions yet.
                 </td>
               </tr>
             )}
-            {rows.map((a, i) => (
+            {rows.map((a) => (
               <tr key={a.attemptId} className="border-b border-border last:border-0">
-                <td className="px-4 py-3">{i + 1}</td>
+                <td className="px-4 py-3 font-semibold">{a.rank}</td>
                 <td className="px-4 py-3 font-medium">{a.studentName}</td>
                 <td className="px-4 py-3 text-muted-foreground">{a.roleNumber ?? a.registerNumber}</td>
                 <td className="px-4 py-3 text-muted-foreground">{a.quizTitle}</td>
                 <td className="px-4 py-3">
-                  {a.score ?? 0} <span className="text-muted-foreground">({a.percentage ?? 0}%)</span>
+                  {formatScore(a.score)}
+                  {a.totalMarks ? <span className="text-muted-foreground"> / {a.totalMarks}</span> : null}{" "}
+                  <span className="text-muted-foreground">({a.percentage ?? 0}%)</span>
                 </td>
+                <td className="px-4 py-3">{a.correct ?? 0}</td>
+                <td className="px-4 py-3">{a.wrong ?? 0}</td>
+                <td className="px-4 py-3 tabular-nums">{formatQuizTime(a.timeTaken)}</td>
                 <td className="px-4 py-3">
                   <span
                     className={

@@ -18,6 +18,7 @@ import { useConnectivity } from "@/hooks/use-connectivity";
 import { enqueueSync, getAttempt, getOfflineQuiz, putAttempt } from "@/lib/db";
 import { getActiveAttemptId } from "@/lib/active-attempt";
 import { evaluate, formatClock } from "@/lib/quiz-utils";
+import { calculateTimeTaken } from "@/utils/leaderboard";
 import { runSync } from "@/lib/sync";
 import type { Attempt, OfflineQuiz } from "@/lib/types";
 
@@ -111,11 +112,14 @@ function AttemptPage() {
       if (!auto && locked) return;
       submitting.current = true;
       const result = evaluate(quiz, attempt);
+      // startTime is never touched here: it was set once when the participant pressed START QUIZ.
+      const endTime = new Date().toISOString();
       const submitted: Attempt = {
         ...attempt,
         ...result,
         status: "SUBMITTED",
-        endTime: new Date().toISOString(),
+        endTime,
+        timeTaken: calculateTimeTaken(attempt.startTime, endTime),
         syncStatus: "PENDING_SYNC",
       };
       await putAttempt(submitted);

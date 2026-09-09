@@ -1,8 +1,17 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Sparkles, Trophy } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
 import { listAllCloudAttempts } from "@/lib/cloud";
+import { getActiveAttemptId } from "@/lib/active-attempt";
+import {
+  LEADERBOARD_RULE_TEXT,
+  LEADERBOARD_RULE_TEXT_SECONDARY,
+  formatQuizTime,
+  formatScore,
+  rankResults,
+} from "@/utils/leaderboard";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
@@ -21,10 +30,14 @@ function LeaderboardPage() {
     queryKey: ["public-leaderboard"],
     queryFn: listAllCloudAttempts,
   });
+  const [myAttemptId, setMyAttemptId] = useState<string | null>(null);
 
-  const rows = data
-    .filter((a) => a.status === "SUBMITTED")
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0) || (a.endTime ?? "").localeCompare(b.endTime ?? ""));
+  useEffect(() => {
+    setMyAttemptId(getActiveAttemptId());
+  }, []);
+
+  const rows = rankResults(data.filter((a) => a.status === "SUBMITTED"));
+  const podium = rows.slice(0, 3);
 
   return (
     <div className="hero-surface min-h-screen">
@@ -38,29 +51,69 @@ function LeaderboardPage() {
         <StatusPill />
       </header>
 
-      <main className="mx-auto max-w-2xl px-5 py-8">
+      <main className="mx-auto max-w-3xl px-5 py-8">
         <div className="flex items-center gap-2">
           <Trophy className="size-5 text-primary" />
           <h1 className="text-2xl font-semibold">Leaderboard</h1>
         </div>
+        <p className="mt-2 text-sm text-muted-foreground">{LEADERBOARD_RULE_TEXT}</p>
+        <p className="text-xs text-muted-foreground">{LEADERBOARD_RULE_TEXT_SECONDARY}</p>
 
-        <div className="surface-card mt-6 divide-y divide-border">
+        {podium.length > 0 && (
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            {podium.map((a) => (
+              <div key={a.attemptId} className="surface-card p-4 text-center">
+                <p className="text-xs font-semibold text-primary">Rank {a.rank}</p>
+                <p className="mt-1 truncate font-medium">{a.studentName}</p>
+                <p className="truncate text-xs text-muted-foreground">{a.roleNumber ?? a.registerNumber}</p>
+                <p className="mt-2 text-2xl font-bold">{formatScore(a.score)}</p>
+                <p className="text-xs text-muted-foreground tabular-nums">{formatQuizTime(a.timeTaken)}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="surface-card mt-6 overflow-x-auto">
           {isLoading && <p className="px-4 py-10 text-center text-sm text-muted-foreground">Loading…</p>}
           {!isLoading && rows.length === 0 && (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">No results yet.</p>
           )}
-          {rows.map((a, i) => (
-            <div key={a.attemptId} className="flex items-center gap-4 px-4 py-3">
-              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-secondary text-sm font-semibold">
-                {i + 1}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{a.studentName}</p>
-                <p className="truncate text-xs text-muted-foreground">{a.quizTitle}</p>
-              </div>
-              <span className="text-sm font-semibold">{a.score ?? 0}</span>
-            </div>
-          ))}
+          {!isLoading && rows.length > 0 && (
+            <table className="w-full text-sm">
+              <thead className="border-b border-border text-left text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Rank</th>
+                  <th className="px-4 py-3 font-medium">Role number</th>
+                  <th className="px-4 py-3 font-medium">Participant</th>
+                  <th className="px-4 py-3 font-medium">Score</th>
+                  <th className="px-4 py-3 font-medium">Correct</th>
+                  <th className="px-4 py-3 font-medium">Wrong</th>
+                  <th className="px-4 py-3 font-medium">Time taken</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((a) => (
+                  <tr
+                    key={a.attemptId}
+                    className={
+                      "border-b border-border last:border-0 " +
+                      (a.attemptId === myAttemptId ? "bg-primary/10 font-medium" : "")
+                    }
+                  >
+                    <td className="px-4 py-3 font-semibold">{a.rank}</td>
+                    <td className="px-4 py-3">{a.roleNumber ?? a.registerNumber}</td>
+                    <td className="px-4 py-3">{a.studentName}</td>
+                    <td className="px-4 py-3 font-semibold">
+                      {formatScore(a.score)} <span className="text-muted-foreground">/ {a.totalMarks ?? "—"}</span>
+                    </td>
+                    <td className="px-4 py-3">{a.correct ?? 0}</td>
+                    <td className="px-4 py-3">{a.wrong ?? 0}</td>
+                    <td className="px-4 py-3 tabular-nums">{formatQuizTime(a.timeTaken)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </main>
     </div>
