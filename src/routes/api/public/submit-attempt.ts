@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { getDocument, setDocument } from "@/lib/firestore-rest.server";
+import { createDocument, getDocument } from "@/lib/firestore-rest.server";
 
 /**
  * Participant submissions are not authenticated, so they are never written to
