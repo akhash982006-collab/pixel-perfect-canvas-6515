@@ -30,7 +30,7 @@ function Results() {
   );
 
   function exportCsv() {
-    const header = ["Rank", "Student", "Register number", "Quiz", "Score", "Percentage", "Result", "Submitted at"];
+    const header = ["Rank", "Student", "Role number", "Quiz", "Score", "Percentage", "Result", "Submitted at"];
     const lines = rows.map((a, i) =>
       [
         i + 1,
