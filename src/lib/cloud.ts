@@ -82,3 +82,10 @@ export async function listCloudAttempts(teacherQuizIds: string[]): Promise<Attem
   );
   return results.flatMap((snap) => snap.docs.map((d) => d.data() as Attempt));
 }
+
+export async function listAllCloudAttempts(): Promise<Attempt[]> {
+  const db = getDbFirestore();
+  if (!db) return localCloudListAttempts();
+  const snap = await getDocs(collection(db, "attempts"));
+  return snap.docs.map((d) => d.data() as Attempt);
+}
