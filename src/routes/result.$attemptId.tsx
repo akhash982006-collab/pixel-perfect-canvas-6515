@@ -132,7 +132,7 @@ function ResultPage() {
           </div>
 
           <Button asChild variant="ghost" className="mt-6">
-            <Link to="/participant-details">Back to quizzes</Link>
+            <Link to="/">Back to home</Link>
           </Button>
         </div>
       </div>

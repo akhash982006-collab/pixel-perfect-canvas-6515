@@ -63,9 +63,18 @@ function EntryForm() {
     const cleanName = name.trim().replace(/\s+/g, " ");
     const cleanRole = roleNumber.trim().toUpperCase();
     const cleanCode = code.trim().toUpperCase();
-    if (cleanName.length < 3) return toast.error("Enter your full name");
-    if (cleanRole.length < 3 || cleanRole.length > 20) return toast.error("Enter the role number given to you");
-    if (cleanCode.length < 3) return toast.error("Enter the quiz code given to you");
+    if (cleanName.length < 3) {
+      toast.error("Enter your full name");
+      return;
+    }
+    if (cleanRole.length < 3 || cleanRole.length > 20) {
+      toast.error("Enter the role number given to you");
+      return;
+    }
+    if (cleanCode.length < 3) {
+      toast.error("Enter the quiz code given to you");
+      return;
+    }
     setBusy(true);
     try {
       await saveStudentSession({ studentName: cleanName, roleNumber: cleanRole, registerNumber: cleanRole });

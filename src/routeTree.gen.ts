@@ -22,6 +22,7 @@ import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AttemptAttemptIdRouteImport } from './routes/attempt.$attemptId'
 import { Route as QuizOfflineCheckRouteImport } from './routes/quiz.offline-check'
+import { Route as QuizPrepareRouteImport } from './routes/quiz.prepare'
 import { Route as ResultAttemptIdRouteImport } from './routes/result.$attemptId'
 import { Route as ApiPublicConnectivityCheckRouteImport } from './routes/api/public/connectivity-check'
 import { Route as ApiPublicSubmitAttemptRouteImport } from './routes/api/public/submit-attempt'
@@ -91,6 +92,11 @@ const QuizOfflineCheckRoute = QuizOfflineCheckRouteImport.update({
   path: '/quiz/offline-check',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuizPrepareRoute = QuizPrepareRouteImport.update({
+  id: '/quiz/prepare',
+  path: '/quiz/prepare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResultAttemptIdRoute = ResultAttemptIdRouteImport.update({
   id: '/result/$attemptId',
   path: '/result/$attemptId',
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminSettingsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
+  '/quiz/prepare': typeof QuizPrepareRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminSettingsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
+  '/quiz/prepare': typeof QuizPrepareRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/admin/settings': typeof AdminSettingsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
+  '/quiz/prepare': typeof QuizPrepareRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
+    | '/quiz/prepare'
     | '/result/$attemptId'
     | '/admin/'
     | '/api/public/connectivity-check'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
+    | '/quiz/prepare'
     | '/result/$attemptId'
     | '/admin'
     | '/api/public/connectivity-check'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
+    | '/quiz/prepare'
     | '/result/$attemptId'
     | '/admin/'
     | '/api/public/connectivity-check'
@@ -224,6 +236,7 @@ export interface RootRouteChildren {
   LeaderboardRoute: typeof LeaderboardRoute
   AttemptAttemptIdRoute: typeof AttemptAttemptIdRoute
   QuizOfflineCheckRoute: typeof QuizOfflineCheckRoute
+  QuizPrepareRoute: typeof QuizPrepareRoute
   ResultAttemptIdRoute: typeof ResultAttemptIdRoute
   ApiPublicConnectivityCheckRoute: typeof ApiPublicConnectivityCheckRoute
   ApiPublicSubmitAttemptRoute: typeof ApiPublicSubmitAttemptRoute
@@ -322,6 +335,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizOfflineCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quiz/prepare': {
+      id: '/quiz/prepare'
+      path: '/quiz/prepare'
+      fullPath: '/quiz/prepare'
+      preLoaderRoute: typeof QuizPrepareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/result/$attemptId': {
       id: '/result/$attemptId'
       path: '/result/$attemptId'
@@ -376,6 +396,7 @@ const rootRouteChildren: RootRouteChildren = {
   LeaderboardRoute: LeaderboardRoute,
   AttemptAttemptIdRoute: AttemptAttemptIdRoute,
   QuizOfflineCheckRoute: QuizOfflineCheckRoute,
+  QuizPrepareRoute: QuizPrepareRoute,
   ResultAttemptIdRoute: ResultAttemptIdRoute,
   ApiPublicConnectivityCheckRoute: ApiPublicConnectivityCheckRoute,
   ApiPublicSubmitAttemptRoute: ApiPublicSubmitAttemptRoute,
