@@ -1,3 +1,4 @@
+import type * as React from "react";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   browserLocalPersistence,
@@ -25,7 +26,14 @@ interface AuthValue {
   logout: () => Promise<void>;
 }
 
-const Ctx = createContext<AuthValue | null>(null);
+// Keep a single context instance even if this module is evaluated twice
+// (dev hot-reload can otherwise create a second, mismatched context).
+const CTX_KEY = "__aithera_auth_ctx__";
+const globalScope = globalThis as typeof globalThis & {
+  [CTX_KEY]?: React.Context<AuthValue | null>;
+};
+const Ctx: React.Context<AuthValue | null> =
+  globalScope[CTX_KEY] ?? (globalScope[CTX_KEY] = createContext<AuthValue | null>(null));
 
 /**
  * Coordinator-only authentication (Firebase email + password).
