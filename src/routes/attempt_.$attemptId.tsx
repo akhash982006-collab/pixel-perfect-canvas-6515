@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { setActiveAttemptId } from "@/lib/active-attempt";
 
-export const Route = createFileRoute("/attempt/$attemptId")({
+export const Route = createFileRoute("/attempt_/$attemptId")({
   head: () => ({
     meta: [
       { title: "Opening quiz — AITHERA QUIZ" },
