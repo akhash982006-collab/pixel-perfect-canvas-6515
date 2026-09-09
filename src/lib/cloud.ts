@@ -1,4 +1,4 @@
-import { getDbFirestore, isFirebaseConfigured } from "./firebase";
+import { isFirebaseConfigured } from "./firebase";
 import {
   deleteFirestoreDocument,
   getFirestoreDocument,
@@ -22,30 +22,26 @@ import type { Attempt, Quiz } from "./types";
 export const cloudMode = () => (isFirebaseConfigured ? "firebase" : "local");
 
 export async function saveQuizToCloud(quiz: Quiz) {
-  const db = getDbFirestore();
-  if (!db) return localCloudPutQuiz(quiz);
+  if (!isFirebaseConfigured) return localCloudPutQuiz(quiz);
   // keep a local copy first so nothing is lost if the network is slow
   await localCloudPutQuiz(quiz);
   await putFirestoreDocument("quizzes", quiz.id, quiz as unknown as Record<string, unknown>);
 }
 
 export async function deleteQuizFromCloud(id: string) {
-  const db = getDbFirestore();
-  if (!db) return localCloudDeleteQuiz(id);
+  if (!isFirebaseConfigured) return localCloudDeleteQuiz(id);
   await deleteFirestoreDocument("quizzes", id);
   await localCloudDeleteQuiz(id);
 }
 
 export async function listTeacherQuizzes(teacherId: string): Promise<Quiz[]> {
-  const db = getDbFirestore();
-  if (!db) return (await localCloudListQuizzes()).filter((q) => q.teacherId === teacherId);
+  if (!isFirebaseConfigured) return (await localCloudListQuizzes()).filter((q) => q.teacherId === teacherId);
   return (await listFirestoreDocuments<Quiz>("quizzes")).filter((quiz) => quiz.teacherId === teacherId);
 }
 
 export async function findQuizByCode(code: string): Promise<Quiz | null> {
   const wanted = code.trim().toUpperCase();
-  const db = getDbFirestore();
-  if (!db) {
+  if (!isFirebaseConfigured) {
     const all = await localCloudListQuizzes();
     return all.find((q) => q.code === wanted && q.published) ?? null;
   }
@@ -53,15 +49,13 @@ export async function findQuizByCode(code: string): Promise<Quiz | null> {
 }
 
 export async function getQuizFromCloud(id: string): Promise<Quiz | null> {
-  const db = getDbFirestore();
-  if (!db) return (await localCloudListQuizzes()).find((q) => q.id === id) ?? null;
+  if (!isFirebaseConfigured) return (await localCloudListQuizzes()).find((q) => q.id === id) ?? null;
   return getFirestoreDocument<Quiz>("quizzes", id);
 }
 
 export async function pushAttemptToCloud(attempt: Attempt) {
-  const db = getDbFirestore();
   const payload: Attempt = { ...attempt, syncStatus: "SYNCED" };
-  if (!db) return localCloudPutAttempt(payload);
+  if (!isFirebaseConfigured) return localCloudPutAttempt(payload);
   // Participants are not signed in, so the submission is validated and stored
   // by our own server endpoint instead of writing to the database directly.
   const res = await fetch("/api/public/submit-attempt", {
@@ -73,14 +67,12 @@ export async function pushAttemptToCloud(attempt: Attempt) {
 }
 
 export async function listCloudAttempts(teacherQuizIds: string[]): Promise<Attempt[]> {
-  const db = getDbFirestore();
-  if (!db) return (await localCloudListAttempts()).filter((a) => teacherQuizIds.includes(a.quizId));
+  if (!isFirebaseConfigured) return (await localCloudListAttempts()).filter((a) => teacherQuizIds.includes(a.quizId));
   if (teacherQuizIds.length === 0) return [];
   return (await listFirestoreDocuments<Attempt>("attempts")).filter((attempt) => teacherQuizIds.includes(attempt.quizId));
 }
 
 export async function listAllCloudAttempts(): Promise<Attempt[]> {
-  const db = getDbFirestore();
-  if (!db) return localCloudListAttempts();
+  if (!isFirebaseConfigured) return localCloudListAttempts();
   return listFirestoreDocuments<Attempt>("attempts");
 }

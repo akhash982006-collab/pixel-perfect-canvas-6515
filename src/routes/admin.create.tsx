@@ -134,8 +134,8 @@ function CreateQuiz() {
       toast.error(
         msg.includes("timed out")
           ? "Saving is taking too long — check this device's internet and try again. Your work is kept on this device."
-          : msg.includes("permission")
-            ? "This account is not allowed to save quizzes yet."
+          : msg.toLowerCase().includes("permission")
+            ? "Publishing is blocked by the quiz database permissions. Ask the project owner to publish the coordinator access rules."
             : "Could not save the quiz",
       );
     } finally {
