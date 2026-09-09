@@ -97,6 +97,7 @@ function AttemptPage() {
   const submit = useCallback(
     async (auto = false) => {
       if (!attempt || !quiz || submitting.current) return;
+      if (!auto && locked) return;
       submitting.current = true;
       const result = evaluate(quiz, attempt);
       const submitted: Attempt = {
@@ -112,7 +113,7 @@ function AttemptPage() {
       toast.success(auto ? "Time is up — quiz submitted" : "Quiz submitted and saved on this device");
       navigate({ to: "/result/$attemptId", params: { attemptId } });
     },
-    [attempt, quiz, attemptId, navigate],
+    [attempt, quiz, attemptId, navigate, locked],
   );
 
   // Timer anchored to the stored deadline, so reloads cannot extend it.

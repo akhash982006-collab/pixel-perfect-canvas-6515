@@ -90,6 +90,7 @@ function Results() {
               <th className="px-4 py-3 font-medium">Quiz</th>
               <th className="px-4 py-3 font-medium">Score</th>
               <th className="px-4 py-3 font-medium">Result</th>
+              <th className="px-4 py-3 font-medium">Connection events</th>
               <th className="px-4 py-3 font-medium">Sync</th>
             </tr>
           </thead>
