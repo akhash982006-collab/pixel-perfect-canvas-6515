@@ -8,7 +8,6 @@ export interface Question {
   correctIndex: number;
   marks: number;
   negativeMarks: number;
-  explanation?: string;
 }
 
 export interface QuizSettings {
