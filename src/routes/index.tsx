@@ -1,6 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Clock3, ListChecks, Sparkles, Trophy, Wifi } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { StatusPill } from "@/components/status-pill";
+import { saveStudentSession } from "@/lib/db";
 
 export const Route = createFileRoute("/")({
   head: () => ({
