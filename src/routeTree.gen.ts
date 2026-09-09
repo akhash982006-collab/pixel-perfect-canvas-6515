@@ -24,6 +24,7 @@ import { Route as AttemptAttemptIdRouteImport } from './routes/attempt.$attemptI
 import { Route as QuizOfflineCheckRouteImport } from './routes/quiz.offline-check'
 import { Route as ResultAttemptIdRouteImport } from './routes/result.$attemptId'
 import { Route as ApiPublicConnectivityCheckRouteImport } from './routes/api/public/connectivity-check'
+import { Route as ApiPublicSubmitAttemptRouteImport } from './routes/api/public/submit-attempt'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -101,6 +102,11 @@ const ApiPublicConnectivityCheckRoute =
     path: '/api/public/connectivity-check',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicSubmitAttemptRoute = ApiPublicSubmitAttemptRouteImport.update({
+  id: '/api/public/submit-attempt',
+  path: '/api/public/submit-attempt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
+  '/api/public/submit-attempt': typeof ApiPublicSubmitAttemptRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
+  '/api/public/submit-attempt': typeof ApiPublicSubmitAttemptRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
+  '/api/public/submit-attempt': typeof ApiPublicSubmitAttemptRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/result/$attemptId'
     | '/admin/'
     | '/api/public/connectivity-check'
+    | '/api/public/submit-attempt'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/result/$attemptId'
     | '/admin'
     | '/api/public/connectivity-check'
+    | '/api/public/submit-attempt'
   id:
     | '__root__'
     | '/'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/result/$attemptId'
     | '/admin/'
     | '/api/public/connectivity-check'
+    | '/api/public/submit-attempt'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -214,6 +226,7 @@ export interface RootRouteChildren {
   QuizOfflineCheckRoute: typeof QuizOfflineCheckRoute
   ResultAttemptIdRoute: typeof ResultAttemptIdRoute
   ApiPublicConnectivityCheckRoute: typeof ApiPublicConnectivityCheckRoute
+  ApiPublicSubmitAttemptRoute: typeof ApiPublicSubmitAttemptRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -323,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicConnectivityCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/submit-attempt': {
+      id: '/api/public/submit-attempt'
+      path: '/api/public/submit-attempt'
+      fullPath: '/api/public/submit-attempt'
+      preLoaderRoute: typeof ApiPublicSubmitAttemptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -358,6 +378,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuizOfflineCheckRoute: QuizOfflineCheckRoute,
   ResultAttemptIdRoute: ResultAttemptIdRoute,
   ApiPublicConnectivityCheckRoute: ApiPublicConnectivityCheckRoute,
+  ApiPublicSubmitAttemptRoute: ApiPublicSubmitAttemptRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

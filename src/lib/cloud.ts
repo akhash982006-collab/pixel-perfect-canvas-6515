@@ -67,8 +67,14 @@ export async function pushAttemptToCloud(attempt: Attempt) {
   const db = getDbFirestore();
   const payload: Attempt = { ...attempt, syncStatus: "SYNCED" };
   if (!db) return localCloudPutAttempt(payload);
-  // attemptId is the document id -> re-sync can never duplicate a submission
-  await setDoc(doc(db, "attempts", attempt.attemptId), payload, { merge: true });
+  // Participants are not signed in, so the submission is validated and stored
+  // by our own server endpoint instead of writing to the database directly.
+  const res = await fetch("/api/public/submit-attempt", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(attempt),
+  });
+  if (!res.ok) throw new Error(`Sync failed (${res.status})`);
 }
 
 export async function listCloudAttempts(teacherQuizIds: string[]): Promise<Attempt[]> {
