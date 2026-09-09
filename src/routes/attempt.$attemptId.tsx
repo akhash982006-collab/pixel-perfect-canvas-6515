@@ -81,7 +81,7 @@ function AttemptPage() {
       const a = await getAttempt(attemptId);
       if (!a) {
         toast.error("This attempt is not on this device");
-        navigate({ to: "/participant-details" });
+        navigate({ to: "/" });
         return;
       }
       if (a.status === "SUBMITTED") {
@@ -180,7 +180,7 @@ function AttemptPage() {
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">{quiz.title}</p>
             <p className="text-xs text-muted-foreground">
-              {attempt.studentName} · {attempt.registerNumber}
+              {attempt.studentName} · {attempt.roleNumber ?? attempt.registerNumber}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">

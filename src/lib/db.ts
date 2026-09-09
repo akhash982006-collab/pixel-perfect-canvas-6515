@@ -75,6 +75,8 @@ export async function removeSyncJob(id: string) {
 /* ---------- student session ---------- */
 export interface StudentSession {
   studentName: string;
+  roleNumber: string;
+  /** @deprecated mirrors roleNumber */
   registerNumber: string;
 }
 export async function saveStudentSession(s: StudentSession) {

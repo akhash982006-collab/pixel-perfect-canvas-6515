@@ -72,7 +72,7 @@ function ResultPage() {
           </span>
           <h1 className="mt-4 text-xl font-semibold">{attempt.quizTitle}</h1>
           <p className="text-sm text-muted-foreground">
-            {attempt.studentName} · {attempt.registerNumber}
+            {attempt.studentName} · {attempt.roleNumber ?? attempt.registerNumber}
           </p>
 
           {showScore ? (
