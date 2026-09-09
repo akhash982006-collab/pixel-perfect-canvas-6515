@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ParticipantDetailsRouteImport } from './routes/participant-details'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -34,6 +35,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -111,6 +117,7 @@ const ApiPublicConnectivityCheckRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/leaderboard'
     | '/login'
     | '/participant-details'
     | '/admin/create'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/leaderboard'
     | '/login'
     | '/participant-details'
     | '/admin/create'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/leaderboard'
     | '/login'
     | '/participant-details'
     | '/admin/create'
@@ -221,6 +233,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   ParticipantDetailsRoute: typeof ParticipantDetailsRoute
   AttemptAttemptIdRoute: typeof AttemptAttemptIdRoute
@@ -243,6 +256,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -373,6 +393,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   ParticipantDetailsRoute: ParticipantDetailsRoute,
   AttemptAttemptIdRoute: AttemptAttemptIdRoute,
