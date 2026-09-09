@@ -3,12 +3,12 @@ import { ArrowRight, BookOpen, CheckCircle2, Percent, Users } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { useTeacherAttempts, useTeacherQuizzes } from "@/hooks/use-teacher-data";
 
-export const Route = createFileRoute("/teacher/")({
+export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [
-      { title: "Teacher dashboard — Offline Quiz Platform" },
+      { title: "Admin dashboard — AITHERA QUIZ" },
       { name: "description", content: "Overview of your quizzes, attempts, average scores and recent submissions." },
-      { property: "og:title", content: "Teacher dashboard — Offline Quiz Platform" },
+      { property: "og:title", content: "Admin dashboard — AITHERA QUIZ" },
       { property: "og:description", content: "Track quizzes, attempts and student submissions in one place." },
     ],
   }),
@@ -40,7 +40,7 @@ function Dashboard() {
           <p className="text-sm text-muted-foreground">Everything you've published and how students are doing.</p>
         </div>
         <Button asChild>
-          <Link to="/teacher/create">Create quiz</Link>
+          <Link to="/admin/create">Create quiz</Link>
         </Button>
       </div>
 
@@ -60,7 +60,7 @@ function Dashboard() {
         <div className="surface-card p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">Recent quizzes</h2>
-            <Link to="/teacher/quizzes" className="inline-flex items-center gap-1 text-sm text-primary">
+            <Link to="/admin/questions" className="inline-flex items-center gap-1 text-sm text-primary">
               View all <ArrowRight className="size-3.5" />
             </Link>
           </div>
@@ -83,7 +83,7 @@ function Dashboard() {
         <div className="surface-card p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">Recent submissions</h2>
-            <Link to="/teacher/results" className="inline-flex items-center gap-1 text-sm text-primary">
+            <Link to="/admin/results" className="inline-flex items-center gap-1 text-sm text-primary">
               View all <ArrowRight className="size-3.5" />
             </Link>
           </div>

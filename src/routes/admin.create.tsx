@@ -12,14 +12,14 @@ import { generateQuizCode, uid } from "@/lib/quiz-utils";
 import { useTeacherAuth } from "@/hooks/use-teacher-auth";
 import type { Question, Quiz, QuizSettings } from "@/lib/types";
 
-export const Route = createFileRoute("/teacher/create")({
+export const Route = createFileRoute("/admin/create")({
   validateSearch: (s: Record<string, unknown>): { id?: string } =>
     typeof s["id"] === "string" ? { id: s["id"] } : {},
   head: () => ({
     meta: [
-      { title: "Create a quiz — Offline Quiz Platform" },
+      { title: "Create a quiz — AITHERA QUIZ" },
       { name: "description", content: "Set up quiz details, add multiple-choice questions and publish a quiz code." },
-      { property: "og:title", content: "Create a quiz — Offline Quiz Platform" },
+      { property: "og:title", content: "Create a quiz — AITHERA QUIZ" },
       { property: "og:description", content: "Build a quiz and publish it with a short code for students." },
     ],
   }),
@@ -128,7 +128,7 @@ function CreateQuiz() {
       setVersion(quiz.version);
       setPublished(quiz.published);
       toast.success(publish ? `Published with code ${quizCode}` : "Draft saved");
-      if (publish) navigate({ to: "/teacher/quizzes" });
+      if (publish) navigate({ to: "/admin/questions" });
     } catch {
       toast.error("Could not save the quiz");
     } finally {

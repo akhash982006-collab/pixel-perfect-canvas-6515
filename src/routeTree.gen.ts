@@ -10,16 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as JoinRouteImport } from './routes/join'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as TeacherRouteImport } from './routes/teacher'
+import { Route as ParticipantDetailsRouteImport } from './routes/participant-details'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminCreateRouteImport } from './routes/admin.create'
+import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
+import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AttemptAttemptIdRouteImport } from './routes/attempt.$attemptId'
 import { Route as QuizOfflineCheckRouteImport } from './routes/quiz.offline-check'
 import { Route as ResultAttemptIdRouteImport } from './routes/result.$attemptId'
-import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
-import { Route as TeacherCreateRouteImport } from './routes/teacher.create'
-import { Route as TeacherQuizzesRouteImport } from './routes/teacher.quizzes'
-import { Route as TeacherResultsRouteImport } from './routes/teacher.results'
 import { Route as ApiPublicConnectivityCheckRouteImport } from './routes/api/public/connectivity-check'
 
 const IndexRoute = IndexRouteImport.update({
@@ -27,9 +27,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const JoinRoute = JoinRouteImport.update({
-  id: '/join',
-  path: '/join',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -37,10 +37,30 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TeacherRoute = TeacherRouteImport.update({
-  id: '/teacher',
-  path: '/teacher',
+const ParticipantDetailsRoute = ParticipantDetailsRouteImport.update({
+  id: '/participant-details',
+  path: '/participant-details',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCreateRoute = AdminCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
+  id: '/questions',
+  path: '/questions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminResultsRoute = AdminResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AttemptAttemptIdRoute = AttemptAttemptIdRouteImport.update({
   id: '/attempt/$attemptId',
@@ -57,26 +77,6 @@ const ResultAttemptIdRoute = ResultAttemptIdRouteImport.update({
   path: '/result/$attemptId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TeacherIndexRoute = TeacherIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherCreateRoute = TeacherCreateRouteImport.update({
-  id: '/create',
-  path: '/create',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherQuizzesRoute = TeacherQuizzesRouteImport.update({
-  id: '/quizzes',
-  path: '/quizzes',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherResultsRoute = TeacherResultsRouteImport.update({
-  id: '/results',
-  path: '/results',
-  getParentRoute: () => TeacherRoute,
-} as any)
 const ApiPublicConnectivityCheckRoute =
   ApiPublicConnectivityCheckRouteImport.update({
     id: '/api/public/connectivity-check',
@@ -86,95 +86,95 @@ const ApiPublicConnectivityCheckRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/join': typeof JoinRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
-  '/teacher': typeof TeacherRouteWithChildren
+  '/participant-details': typeof ParticipantDetailsRoute
+  '/admin/create': typeof AdminCreateRoute
+  '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/results': typeof AdminResultsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
-  '/teacher/create': typeof TeacherCreateRoute
-  '/teacher/quizzes': typeof TeacherQuizzesRoute
-  '/teacher/results': typeof TeacherResultsRoute
-  '/teacher/': typeof TeacherIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/participant-details': typeof ParticipantDetailsRoute
+  '/admin/create': typeof AdminCreateRoute
+  '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/results': typeof AdminResultsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
-  '/teacher/create': typeof TeacherCreateRoute
-  '/teacher/quizzes': typeof TeacherQuizzesRoute
-  '/teacher/results': typeof TeacherResultsRoute
-  '/teacher': typeof TeacherIndexRoute
+  '/admin': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/join': typeof JoinRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
-  '/teacher': typeof TeacherRouteWithChildren
+  '/participant-details': typeof ParticipantDetailsRoute
+  '/admin/create': typeof AdminCreateRoute
+  '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/results': typeof AdminResultsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
-  '/teacher/create': typeof TeacherCreateRoute
-  '/teacher/quizzes': typeof TeacherQuizzesRoute
-  '/teacher/results': typeof TeacherResultsRoute
-  '/teacher/': typeof TeacherIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/join'
+    | '/admin'
     | '/login'
-    | '/teacher'
+    | '/participant-details'
+    | '/admin/create'
+    | '/admin/questions'
+    | '/admin/results'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
-    | '/teacher/create'
-    | '/teacher/quizzes'
-    | '/teacher/results'
-    | '/teacher/'
+    | '/admin/'
     | '/api/public/connectivity-check'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/join'
     | '/login'
+    | '/participant-details'
+    | '/admin/create'
+    | '/admin/questions'
+    | '/admin/results'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
-    | '/teacher/create'
-    | '/teacher/quizzes'
-    | '/teacher/results'
-    | '/teacher'
+    | '/admin'
     | '/api/public/connectivity-check'
   id:
     | '__root__'
     | '/'
-    | '/join'
+    | '/admin'
     | '/login'
-    | '/teacher'
+    | '/participant-details'
+    | '/admin/create'
+    | '/admin/questions'
+    | '/admin/results'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
     | '/result/$attemptId'
-    | '/teacher/create'
-    | '/teacher/quizzes'
-    | '/teacher/results'
-    | '/teacher/'
+    | '/admin/'
     | '/api/public/connectivity-check'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  JoinRoute: typeof JoinRoute
+  AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
-  TeacherRoute: typeof TeacherRouteWithChildren
+  ParticipantDetailsRoute: typeof ParticipantDetailsRoute
   AttemptAttemptIdRoute: typeof AttemptAttemptIdRoute
   QuizOfflineCheckRoute: typeof QuizOfflineCheckRoute
   ResultAttemptIdRoute: typeof ResultAttemptIdRoute
@@ -190,11 +190,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/join': {
-      id: '/join'
-      path: '/join'
-      fullPath: '/join'
-      preLoaderRoute: typeof JoinRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -204,12 +204,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/teacher': {
-      id: '/teacher'
-      path: '/teacher'
-      fullPath: '/teacher'
-      preLoaderRoute: typeof TeacherRouteImport
+    '/participant-details': {
+      id: '/participant-details'
+      path: '/participant-details'
+      fullPath: '/participant-details'
+      preLoaderRoute: typeof ParticipantDetailsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/create': {
+      id: '/admin/create'
+      path: '/create'
+      fullPath: '/admin/create'
+      preLoaderRoute: typeof AdminCreateRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/questions': {
+      id: '/admin/questions'
+      path: '/questions'
+      fullPath: '/admin/questions'
+      preLoaderRoute: typeof AdminQuestionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/results': {
+      id: '/admin/results'
+      path: '/results'
+      fullPath: '/admin/results'
+      preLoaderRoute: typeof AdminResultsRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/attempt/$attemptId': {
       id: '/attempt/$attemptId'
@@ -232,34 +260,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultAttemptIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/teacher/': {
-      id: '/teacher/'
-      path: '/'
-      fullPath: '/teacher/'
-      preLoaderRoute: typeof TeacherIndexRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/create': {
-      id: '/teacher/create'
-      path: '/create'
-      fullPath: '/teacher/create'
-      preLoaderRoute: typeof TeacherCreateRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/quizzes': {
-      id: '/teacher/quizzes'
-      path: '/quizzes'
-      fullPath: '/teacher/quizzes'
-      preLoaderRoute: typeof TeacherQuizzesRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/results': {
-      id: '/teacher/results'
-      path: '/results'
-      fullPath: '/teacher/results'
-      preLoaderRoute: typeof TeacherResultsRouteImport
-      parentRoute: typeof TeacherRoute
-    }
     '/api/public/connectivity-check': {
       id: '/api/public/connectivity-check'
       path: '/api/public/connectivity-check'
@@ -270,28 +270,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface TeacherRouteChildren {
-  TeacherCreateRoute: typeof TeacherCreateRoute
-  TeacherQuizzesRoute: typeof TeacherQuizzesRoute
-  TeacherResultsRoute: typeof TeacherResultsRoute
-  TeacherIndexRoute: typeof TeacherIndexRoute
+interface AdminRouteChildren {
+  AdminCreateRoute: typeof AdminCreateRoute
+  AdminQuestionsRoute: typeof AdminQuestionsRoute
+  AdminResultsRoute: typeof AdminResultsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
-const TeacherRouteChildren: TeacherRouteChildren = {
-  TeacherCreateRoute: TeacherCreateRoute,
-  TeacherQuizzesRoute: TeacherQuizzesRoute,
-  TeacherResultsRoute: TeacherResultsRoute,
-  TeacherIndexRoute: TeacherIndexRoute,
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCreateRoute: AdminCreateRoute,
+  AdminQuestionsRoute: AdminQuestionsRoute,
+  AdminResultsRoute: AdminResultsRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 
-const TeacherRouteWithChildren =
-  TeacherRoute._addFileChildren(TeacherRouteChildren)
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  JoinRoute: JoinRoute,
+  AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
-  TeacherRoute: TeacherRouteWithChildren,
+  ParticipantDetailsRoute: ParticipantDetailsRoute,
   AttemptAttemptIdRoute: AttemptAttemptIdRoute,
   QuizOfflineCheckRoute: QuizOfflineCheckRoute,
   ResultAttemptIdRoute: ResultAttemptIdRoute,

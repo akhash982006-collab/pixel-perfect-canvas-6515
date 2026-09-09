@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/status-pill";
 import { useTeacherAuth } from "@/hooks/use-teacher-auth";
 
-export const Route = createFileRoute("/teacher")({
+export const Route = createFileRoute("/admin")({
   component: TeacherLayout,
 });
 
 const nav = [
   { to: "/teacher", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/teacher/quizzes", label: "My quizzes", icon: ListChecks, exact: false },
-  { to: "/teacher/create", label: "Create quiz", icon: FilePlus2, exact: false },
-  { to: "/teacher/results", label: "Results", icon: BarChart3, exact: false },
+  { to: "/admin/questions", label: "My quizzes", icon: ListChecks, exact: false },
+  { to: "/admin/create", label: "Create quiz", icon: FilePlus2, exact: false },
+  { to: "/admin/results", label: "Results", icon: BarChart3, exact: false },
 ] as const;
 
 function TeacherLayout() {

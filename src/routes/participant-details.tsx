@@ -16,7 +16,7 @@ import {
 } from "@/lib/db";
 import type { Attempt, OfflineQuiz, Quiz } from "@/lib/types";
 
-export const Route = createFileRoute("/join")({
+export const Route = createFileRoute("/participant-details")({
   head: () => ({
     meta: [
       { title: "Join a quiz — Offline Quiz Platform" },
