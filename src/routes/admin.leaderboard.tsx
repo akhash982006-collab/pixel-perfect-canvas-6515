@@ -44,7 +44,7 @@ function AdminLeaderboard() {
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{a.studentName}</p>
               <p className="truncate text-xs text-muted-foreground">
-                {a.registerNumber} · {a.quizTitle}
+                {a.roleNumber ?? a.registerNumber} · {a.quizTitle}
               </p>
             </div>
             <span className="text-sm font-semibold">{a.score ?? 0}</span>

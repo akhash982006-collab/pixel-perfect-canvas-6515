@@ -1,6 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Clock3, ListChecks, Sparkles, Trophy, Wifi } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { StatusPill } from "@/components/status-pill";
+import { saveStudentSession } from "@/lib/db";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -9,13 +15,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "The official AITHERA 2026 quiz competition by the Department of Artificial Intelligence and Data Science, St. Xavier's Catholic College of Engineering (Autonomous). Sign in with Google and compete offline.",
+          "The official AITHERA 2026 quiz competition by the Department of Artificial Intelligence and Data Science, St. Xavier's Catholic College of Engineering (Autonomous). Enter your name, role number and quiz code, then compete offline.",
       },
       { property: "og:title", content: "AITHERA QUIZ — AITHERA 2026" },
       {
         property: "og:description",
         content:
-          "Intelligence beyond imagination. Compete in the AITHERA 2026 symposium quiz — sign in with Google, prepare offline, and aim for the top of the leaderboard.",
+          "Intelligence beyond imagination. Compete in the AITHERA 2026 symposium quiz — enter your details, prepare offline, and aim for the top of the leaderboard.",
       },
     ],
   }),
@@ -32,8 +38,8 @@ const infoPills = [
 
 const steps = [
   {
-    title: "Sign In",
-    text: "Continue using your Google account.",
+    title: "Enter Details",
+    text: "Add your name, role number and quiz code.",
   },
   {
     title: "Prepare Offline",
@@ -45,26 +51,79 @@ const steps = [
   },
 ];
 
-function GoogleIcon() {
+function EntryForm() {
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [roleNumber, setRoleNumber] = useState("");
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const cleanName = name.trim().replace(/\s+/g, " ");
+    const cleanRole = roleNumber.trim().toUpperCase();
+    const cleanCode = code.trim().toUpperCase();
+    if (cleanName.length < 3) {
+      toast.error("Enter your full name");
+      return;
+    }
+    if (cleanRole.length < 3 || cleanRole.length > 20) {
+      toast.error("Enter the role number given to you");
+      return;
+    }
+    if (cleanCode.length < 3) {
+      toast.error("Enter the quiz code given to you");
+      return;
+    }
+    setBusy(true);
+    try {
+      await saveStudentSession({ studentName: cleanName, roleNumber: cleanRole, registerNumber: cleanRole });
+      void navigate({ to: "/quiz/prepare", search: { code: cleanCode } });
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
-    <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
-      <path
-        fill="#4285F4"
-        d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.53 5.53 0 0 1-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82Z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A11.99 11.99 0 0 0 12 24Z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.27 14.29A7.2 7.2 0 0 1 4.89 12c0-.8.14-1.57.38-2.29V6.62H1.29a11.98 11.98 0 0 0 0 10.76l3.98-3.09Z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42A11.97 11.97 0 0 0 12 0 11.99 11.99 0 0 0 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75Z"
-      />
-    </svg>
+    <form onSubmit={(e) => void submit(e)} className="mt-8 w-full max-w-md space-y-3 text-left">
+      <div className="space-y-1.5">
+        <Label htmlFor="pname">Participant Name</Label>
+        <Input id="pname" value={name} onChange={(e) => setName(e.target.value)} placeholder="Rahul S" required />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="prole">Role Number / Participant ID</Label>
+        <Input
+          id="prole"
+          value={roleNumber}
+          onChange={(e) => setRoleNumber(e.target.value.toUpperCase())}
+          placeholder="AIT024"
+          className="font-mono tracking-widest"
+          required
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="pcode">Quiz Code</Label>
+        <Input
+          id="pcode"
+          value={code}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          placeholder="AITHERA26"
+          className="font-mono tracking-widest"
+          required
+        />
+      </div>
+      <Button
+        type="submit"
+        size="lg"
+        disabled={busy}
+        className="mt-2 w-full rounded-2xl bg-brand-teal font-display text-sm font-bold tracking-[0.14em] text-white uppercase hover:brightness-110"
+      >
+        {busy ? "Please wait…" : "Enter Quiz"}
+      </Button>
+      <p className="text-center text-xs text-muted-foreground">
+        Enter the details provided by the event coordinator.
+      </p>
+    </form>
   );
 }
 
@@ -173,19 +232,8 @@ function Landing() {
         </div>
 
 
-        {/* CTA */}
-        <Link
-          to="/login"
-          className="mt-8 inline-flex w-full max-w-xl items-center justify-center gap-3 rounded-2xl bg-brand-teal px-6 py-4 font-display text-sm font-bold tracking-[0.14em] text-white uppercase shadow-lg transition-transform hover:scale-[1.01] hover:brightness-110 sm:w-auto sm:min-w-96"
-        >
-          <span className="grid size-7 place-items-center rounded-full bg-white">
-            <GoogleIcon />
-          </span>
-          Continue with Google
-        </Link>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Use your Google account to enter the AITHERA Quiz.
-        </p>
+        {/* Participant entry */}
+        <EntryForm />
 
         {/* How it works */}
         <div className="mt-10 grid w-full max-w-2xl gap-4 sm:grid-cols-3">

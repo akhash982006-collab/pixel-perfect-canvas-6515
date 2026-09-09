@@ -72,7 +72,7 @@ function ResultPage() {
           </span>
           <h1 className="mt-4 text-xl font-semibold">{attempt.quizTitle}</h1>
           <p className="text-sm text-muted-foreground">
-            {attempt.studentName} · {attempt.registerNumber}
+            {attempt.studentName} · {attempt.roleNumber ?? attempt.registerNumber}
           </p>
 
           {showScore ? (
@@ -132,7 +132,7 @@ function ResultPage() {
           </div>
 
           <Button asChild variant="ghost" className="mt-6">
-            <Link to="/participant-details">Back to quizzes</Link>
+            <Link to="/">Back to home</Link>
           </Button>
         </div>
       </div>

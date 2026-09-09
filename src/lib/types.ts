@@ -69,6 +69,9 @@ export interface Attempt {
   quizCode: string;
   quizTitle: string;
   studentName: string;
+  /** Coordinator-assigned role number / participant ID, e.g. AIT024 */
+  roleNumber: string;
+  /** @deprecated kept for older records; mirrors roleNumber */
   registerNumber: string;
   startTime: string;
   endTime?: string;

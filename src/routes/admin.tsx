@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import {
   BarChart3,
@@ -12,10 +12,19 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { StatusPill } from "@/components/status-pill";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin")({
+  head: () => ({
+    meta: [
+      { title: "Coordinator access — AITHERA QUIZ" },
+      { name: "description", content: "Coordinator sign-in for the AITHERA 2026 quiz competition." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: AdminLayout,
 });
 
@@ -29,22 +38,81 @@ const nav = [
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ] as const;
 
+function CoordinatorLogin() {
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      await signIn(email, password);
+      void navigate({ to: "/admin/dashboard", replace: true });
+    } catch {
+      setError("Invalid admin credentials.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="hero-surface grid min-h-screen place-items-center px-5 py-12">
+      <form onSubmit={(e) => void submit(e)} className="surface-card w-full max-w-sm space-y-4 p-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold">
+            <span className="font-serif italic">AITHERA</span> QUIZ
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">Coordinator Access</p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="username"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+        <Button type="submit" className="w-full" disabled={busy}>
+          {busy ? "Signing in…" : "SIGN IN"}
+        </Button>
+      </form>
+    </div>
+  );
+}
+
 function AdminLayout() {
-  const { user, role, loading, checking, logout } = useAuth();
+  const { user, loading, checking, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (loading || checking) return;
-    if (!user) {
-      void navigate({ to: "/login", replace: true });
-      return;
-    }
-    if (role === "participant") void navigate({ to: "/participant-details", replace: true });
-  }, [loading, checking, user, role, navigate]);
+    if (!loading && !checking && !user) return;
+  }, [loading, checking, user]);
 
-  if (loading || checking || !user || role !== "admin") {
+  if (loading || checking) {
     return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Checking access…</div>;
   }
+
+  if (!user) return <CoordinatorLogin />;
 
   return (
     <div className="min-h-screen md:flex">
@@ -69,7 +137,12 @@ function AdminLayout() {
           ))}
         </nav>
         <div className="hidden px-3 md:block">
-          <Button variant="ghost" size="sm" className="w-full justify-start gap-2" onClick={() => void logout()}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start gap-2"
+            onClick={() => void logout().then(() => navigate({ to: "/admin", replace: true }))}
+          >
             <LogOut className="size-4" /> Sign out
           </Button>
         </div>
@@ -83,7 +156,12 @@ function AdminLayout() {
           </div>
           <div className="flex items-center gap-3">
             <StatusPill />
-            <Button variant="outline" size="sm" className="md:hidden" onClick={() => void logout()}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="md:hidden"
+              onClick={() => void logout().then(() => navigate({ to: "/admin", replace: true }))}
+            >
               Sign out
             </Button>
           </div>

@@ -49,7 +49,7 @@ function OfflineCheckPage() {
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState<OfflineQuiz | null>(null);
   const [ready, setReady] = useState<boolean | null>(null);
-  const [session, setSession] = useState<{ studentName: string; registerNumber: string } | null>(null);
+  const [session, setSession] = useState<{ studentName: string; roleNumber: string } | null>(null);
   const [resumable, setResumable] = useState<Attempt | null>(null);
   const [starting, setStarting] = useState(false);
   const { state } = useConnectivity({ intervalMs: 2500, offlineConfirmations: 2 });
@@ -58,11 +58,11 @@ function OfflineCheckPage() {
     void (async () => {
       const [q, s, attempts] = await Promise.all([getOfflineQuiz(quizId), getStudentSession(), listAttempts()]);
       setQuiz(q ?? null);
-      setSession(s ?? null);
+      setSession(s ? { studentName: s.studentName, roleNumber: s.roleNumber ?? s.registerNumber } : null);
       setReady(Boolean(q?.offlineReady && q.questions.length > 0));
       setResumable(
         attempts.find(
-          (a) => a.quizId === quizId && a.status === "IN_PROGRESS" && a.registerNumber === (s?.registerNumber ?? ""),
+          (a) => a.quizId === quizId && a.status === "IN_PROGRESS" && (a.roleNumber ?? a.registerNumber) === (s?.roleNumber ?? s?.registerNumber ?? ""),
         ) ?? null,
       );
     })();
@@ -90,7 +90,8 @@ function OfflineCheckPage() {
         quizCode: quiz.code,
         quizTitle: quiz.title,
         studentName: session.studentName,
-        registerNumber: session.registerNumber,
+        roleNumber: session.roleNumber,
+        registerNumber: session.roleNumber,
         startTime: now.toISOString(),
         deadline: new Date(now.getTime() + quiz.durationMinutes * 60000).toISOString(),
         status: "IN_PROGRESS",
@@ -173,7 +174,7 @@ function OfflineCheckPage() {
 
           <p className="text-center text-xs text-muted-foreground">
             Wrong quiz?{" "}
-            <Link to="/participant-details" className="text-primary underline-offset-4 hover:underline">
+            <Link to="/" className="text-primary underline-offset-4 hover:underline">
               Go back
             </Link>
           </p>

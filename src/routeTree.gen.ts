@@ -12,8 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ParticipantDetailsRouteImport } from './routes/participant-details'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminCreateRouteImport } from './routes/admin.create'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -24,8 +22,10 @@ import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AttemptAttemptIdRouteImport } from './routes/attempt.$attemptId'
 import { Route as QuizOfflineCheckRouteImport } from './routes/quiz.offline-check'
+import { Route as QuizPrepareRouteImport } from './routes/quiz.prepare'
 import { Route as ResultAttemptIdRouteImport } from './routes/result.$attemptId'
 import { Route as ApiPublicConnectivityCheckRouteImport } from './routes/api/public/connectivity-check'
+import { Route as ApiPublicSubmitAttemptRouteImport } from './routes/api/public/submit-attempt'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,16 +40,6 @@ const AdminRoute = AdminRouteImport.update({
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ParticipantDetailsRoute = ParticipantDetailsRouteImport.update({
-  id: '/participant-details',
-  path: '/participant-details',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -102,6 +92,11 @@ const QuizOfflineCheckRoute = QuizOfflineCheckRouteImport.update({
   path: '/quiz/offline-check',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuizPrepareRoute = QuizPrepareRouteImport.update({
+  id: '/quiz/prepare',
+  path: '/quiz/prepare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResultAttemptIdRoute = ResultAttemptIdRouteImport.update({
   id: '/result/$attemptId',
   path: '/result/$attemptId',
@@ -113,13 +108,16 @@ const ApiPublicConnectivityCheckRoute =
     path: '/api/public/connectivity-check',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicSubmitAttemptRoute = ApiPublicSubmitAttemptRouteImport.update({
+  id: '/api/public/submit-attempt',
+  path: '/api/public/submit-attempt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
-  '/login': typeof LoginRoute
-  '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leaderboard': typeof AdminLeaderboardRoute
@@ -129,15 +127,15 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminSettingsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
+  '/quiz/prepare': typeof QuizPrepareRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
+  '/api/public/submit-attempt': typeof ApiPublicSubmitAttemptRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
-  '/login': typeof LoginRoute
-  '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leaderboard': typeof AdminLeaderboardRoute
@@ -147,17 +145,17 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminSettingsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
+  '/quiz/prepare': typeof QuizPrepareRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
+  '/api/public/submit-attempt': typeof ApiPublicSubmitAttemptRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
-  '/login': typeof LoginRoute
-  '/participant-details': typeof ParticipantDetailsRoute
   '/admin/create': typeof AdminCreateRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leaderboard': typeof AdminLeaderboardRoute
@@ -167,9 +165,11 @@ export interface FileRoutesById {
   '/admin/settings': typeof AdminSettingsRoute
   '/attempt/$attemptId': typeof AttemptAttemptIdRoute
   '/quiz/offline-check': typeof QuizOfflineCheckRoute
+  '/quiz/prepare': typeof QuizPrepareRoute
   '/result/$attemptId': typeof ResultAttemptIdRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
+  '/api/public/submit-attempt': typeof ApiPublicSubmitAttemptRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -177,8 +177,6 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/leaderboard'
-    | '/login'
-    | '/participant-details'
     | '/admin/create'
     | '/admin/dashboard'
     | '/admin/leaderboard'
@@ -188,15 +186,15 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
+    | '/quiz/prepare'
     | '/result/$attemptId'
     | '/admin/'
     | '/api/public/connectivity-check'
+    | '/api/public/submit-attempt'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/leaderboard'
-    | '/login'
-    | '/participant-details'
     | '/admin/create'
     | '/admin/dashboard'
     | '/admin/leaderboard'
@@ -206,16 +204,16 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
+    | '/quiz/prepare'
     | '/result/$attemptId'
     | '/admin'
     | '/api/public/connectivity-check'
+    | '/api/public/submit-attempt'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/leaderboard'
-    | '/login'
-    | '/participant-details'
     | '/admin/create'
     | '/admin/dashboard'
     | '/admin/leaderboard'
@@ -225,21 +223,23 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/attempt/$attemptId'
     | '/quiz/offline-check'
+    | '/quiz/prepare'
     | '/result/$attemptId'
     | '/admin/'
     | '/api/public/connectivity-check'
+    | '/api/public/submit-attempt'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   LeaderboardRoute: typeof LeaderboardRoute
-  LoginRoute: typeof LoginRoute
-  ParticipantDetailsRoute: typeof ParticipantDetailsRoute
   AttemptAttemptIdRoute: typeof AttemptAttemptIdRoute
   QuizOfflineCheckRoute: typeof QuizOfflineCheckRoute
+  QuizPrepareRoute: typeof QuizPrepareRoute
   ResultAttemptIdRoute: typeof ResultAttemptIdRoute
   ApiPublicConnectivityCheckRoute: typeof ApiPublicConnectivityCheckRoute
+  ApiPublicSubmitAttemptRoute: typeof ApiPublicSubmitAttemptRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -263,20 +263,6 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/participant-details': {
-      id: '/participant-details'
-      path: '/participant-details'
-      fullPath: '/participant-details'
-      preLoaderRoute: typeof ParticipantDetailsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -349,6 +335,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizOfflineCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quiz/prepare': {
+      id: '/quiz/prepare'
+      path: '/quiz/prepare'
+      fullPath: '/quiz/prepare'
+      preLoaderRoute: typeof QuizPrepareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/result/$attemptId': {
       id: '/result/$attemptId'
       path: '/result/$attemptId'
@@ -361,6 +354,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/connectivity-check'
       fullPath: '/api/public/connectivity-check'
       preLoaderRoute: typeof ApiPublicConnectivityCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/submit-attempt': {
+      id: '/api/public/submit-attempt'
+      path: '/api/public/submit-attempt'
+      fullPath: '/api/public/submit-attempt'
+      preLoaderRoute: typeof ApiPublicSubmitAttemptRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -394,12 +394,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   LeaderboardRoute: LeaderboardRoute,
-  LoginRoute: LoginRoute,
-  ParticipantDetailsRoute: ParticipantDetailsRoute,
   AttemptAttemptIdRoute: AttemptAttemptIdRoute,
   QuizOfflineCheckRoute: QuizOfflineCheckRoute,
+  QuizPrepareRoute: QuizPrepareRoute,
   ResultAttemptIdRoute: ResultAttemptIdRoute,
   ApiPublicConnectivityCheckRoute: ApiPublicConnectivityCheckRoute,
+  ApiPublicSubmitAttemptRoute: ApiPublicSubmitAttemptRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

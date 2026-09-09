@@ -30,12 +30,12 @@ function Results() {
   );
 
   function exportCsv() {
-    const header = ["Rank", "Student", "Register number", "Quiz", "Score", "Percentage", "Result", "Submitted at"];
+    const header = ["Rank", "Student", "Role number", "Quiz", "Score", "Percentage", "Result", "Submitted at"];
     const lines = rows.map((a, i) =>
       [
         i + 1,
         a.studentName,
-        a.registerNumber,
+        a.roleNumber ?? a.registerNumber,
         a.quizTitle,
         a.score ?? 0,
         `${a.percentage ?? 0}%`,
@@ -86,7 +86,7 @@ function Results() {
             <tr>
               <th className="px-4 py-3 font-medium">#</th>
               <th className="px-4 py-3 font-medium">Student</th>
-              <th className="px-4 py-3 font-medium">Register no.</th>
+              <th className="px-4 py-3 font-medium">Role number</th>
               <th className="px-4 py-3 font-medium">Quiz</th>
               <th className="px-4 py-3 font-medium">Score</th>
               <th className="px-4 py-3 font-medium">Result</th>
@@ -106,7 +106,7 @@ function Results() {
               <tr key={a.attemptId} className="border-b border-border last:border-0">
                 <td className="px-4 py-3">{i + 1}</td>
                 <td className="px-4 py-3 font-medium">{a.studentName}</td>
-                <td className="px-4 py-3 text-muted-foreground">{a.registerNumber}</td>
+                <td className="px-4 py-3 text-muted-foreground">{a.roleNumber ?? a.registerNumber}</td>
                 <td className="px-4 py-3 text-muted-foreground">{a.quizTitle}</td>
                 <td className="px-4 py-3">
                   {a.score ?? 0} <span className="text-muted-foreground">({a.percentage ?? 0}%)</span>

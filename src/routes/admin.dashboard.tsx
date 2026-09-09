@@ -98,7 +98,7 @@ function Dashboard() {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{a.studentName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {a.registerNumber} · {a.quizTitle}
+                      {a.roleNumber ?? a.registerNumber} · {a.quizTitle}
                     </p>
                   </div>
                   <span className="text-sm font-semibold">{a.percentage ?? 0}%</span>

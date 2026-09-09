@@ -35,7 +35,7 @@ function Participants() {
           <thead className="border-b border-border text-left text-muted-foreground">
             <tr>
               <th className="px-4 py-3 font-medium">Participant</th>
-              <th className="px-4 py-3 font-medium">Register no.</th>
+              <th className="px-4 py-3 font-medium">Role number</th>
               <th className="px-4 py-3 font-medium">Quiz</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Score</th>
@@ -53,7 +53,7 @@ function Participants() {
             {rows.map((a) => (
               <tr key={a.attemptId} className="border-b border-border last:border-0">
                 <td className="px-4 py-3 font-medium">{a.studentName}</td>
-                <td className="px-4 py-3 text-muted-foreground">{a.registerNumber}</td>
+                <td className="px-4 py-3 text-muted-foreground">{a.roleNumber ?? a.registerNumber}</td>
                 <td className="px-4 py-3 text-muted-foreground">{a.quizTitle}</td>
                 <td className="px-4 py-3">{a.status === "SUBMITTED" ? "Submitted" : "In progress"}</td>
                 <td className="px-4 py-3">{a.status === "SUBMITTED" ? `${a.score ?? 0}` : "—"}</td>
