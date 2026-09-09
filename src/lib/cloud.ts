@@ -67,7 +67,11 @@ export async function pushAttemptToCloud(attempt: Attempt) {
     headers: { "content-type": "application/json" },
     body: JSON.stringify(attempt),
   });
-  if (!res.ok) throw new Error(`Sync failed (${res.status})`);
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`Sync failed (${res.status}) ${detail.slice(0, 200)}`);
+  }
+
 }
 
 export async function listCloudAttempts(teacherQuizIds: string[]): Promise<Attempt[]> {

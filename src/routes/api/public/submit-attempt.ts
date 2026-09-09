@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { getDocument, setDocument } from "@/lib/firestore-rest.server";
+import { createDocument, getDocument } from "@/lib/firestore-rest.server";
 
 /**
  * Participant submissions are not authenticated, so they are never written to
@@ -99,9 +99,11 @@ export const Route = createFileRoute("/api/public/submit-attempt")({
         const percentage = totalMarks > 0 ? Math.round((score / totalMarks) * 1000) / 10 : 0;
 
         try {
-          await setDocument(`attempts/${parsed.attemptId}`, {
+          const outcome = await createDocument("attempts", parsed.attemptId, {
             ...parsed,
             registerNumber: parsed.registerNumber ?? parsed.roleNumber,
+            // Stored security rules require this exact field name.
+            participantName: parsed.studentName,
             correct,
             wrong,
             unanswered,
@@ -111,11 +113,11 @@ export const Route = createFileRoute("/api/public/submit-attempt")({
             syncStatus: "SYNCED",
             serverReceivedAt: new Date().toISOString(),
           } as never);
-        } catch {
-          return json({ error: "Could not store the submission" }, 502);
+          return json({ ok: true, attemptId: parsed.attemptId, score, percentage, duplicate: outcome === "exists" });
+        } catch (e) {
+          return json({ error: "Could not store the submission", detail: String(e).slice(0, 300) }, 502);
         }
 
-        return json({ ok: true, attemptId: parsed.attemptId, score, percentage });
       },
     },
   },
