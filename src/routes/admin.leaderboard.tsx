@@ -2,6 +2,13 @@ import { useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { useTeacherAttempts, useTeacherQuizzes } from "@/hooks/use-teacher-data";
+import {
+  LEADERBOARD_RULE_TEXT,
+  LEADERBOARD_RULE_TEXT_SECONDARY,
+  formatQuizTime,
+  formatScore,
+  rankResults,
+} from "@/utils/leaderboard";
 
 export const Route = createFileRoute("/admin/leaderboard")({
   head: () => ({
@@ -19,37 +26,55 @@ function AdminLeaderboard() {
   const { data: quizzes = [] } = useTeacherQuizzes();
   const { data: attempts = [] } = useTeacherAttempts(quizzes.map((q) => q.id));
 
-  const rows = useMemo(
-    () =>
-      attempts
-        .filter((a) => a.status === "SUBMITTED")
-        .sort((a, b) => (b.score ?? 0) - (a.score ?? 0) || (a.endTime ?? "").localeCompare(b.endTime ?? "")),
-    [attempts],
-  );
+  const rows = useMemo(() => rankResults(attempts.filter((a) => a.status === "SUBMITTED")), [attempts]);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Trophy className="size-5 text-primary" />
-        <h1 className="text-2xl font-semibold">Leaderboard</h1>
+      <div>
+        <div className="flex items-center gap-2">
+          <Trophy className="size-5 text-primary" />
+          <h1 className="text-2xl font-semibold">Leaderboard</h1>
+        </div>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{LEADERBOARD_RULE_TEXT}</p>
+        <p className="text-xs text-muted-foreground">{LEADERBOARD_RULE_TEXT_SECONDARY}</p>
       </div>
 
-      <div className="surface-card divide-y divide-border">
-        {rows.length === 0 && <p className="px-4 py-10 text-center text-sm text-muted-foreground">No results yet.</p>}
-        {rows.map((a, i) => (
-          <div key={a.attemptId} className="flex items-center gap-4 px-4 py-3">
-            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-secondary text-sm font-semibold">
-              {i + 1}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{a.studentName}</p>
-              <p className="truncate text-xs text-muted-foreground">
-                {a.roleNumber ?? a.registerNumber} · {a.quizTitle}
-              </p>
-            </div>
-            <span className="text-sm font-semibold">{a.score ?? 0}</span>
-          </div>
-        ))}
+      <div className="surface-card overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="border-b border-border text-left text-muted-foreground">
+            <tr>
+              <th className="px-4 py-3 font-medium">Rank</th>
+              <th className="px-4 py-3 font-medium">Role number</th>
+              <th className="px-4 py-3 font-medium">Participant</th>
+              <th className="px-4 py-3 font-medium">Score</th>
+              <th className="px-4 py-3 font-medium">Correct</th>
+              <th className="px-4 py-3 font-medium">Wrong</th>
+              <th className="px-4 py-3 font-medium">Time taken</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
+                  No results yet.
+                </td>
+              </tr>
+            )}
+            {rows.map((a) => (
+              <tr key={a.attemptId} className="border-b border-border last:border-0">
+                <td className="px-4 py-3 font-semibold">{a.rank}</td>
+                <td className="px-4 py-3">{a.roleNumber ?? a.registerNumber}</td>
+                <td className="px-4 py-3 font-medium">{a.studentName}</td>
+                <td className="px-4 py-3 font-semibold">
+                  {formatScore(a.score)} <span className="text-muted-foreground">/ {a.totalMarks ?? "—"}</span>
+                </td>
+                <td className="px-4 py-3">{a.correct ?? 0}</td>
+                <td className="px-4 py-3">{a.wrong ?? 0}</td>
+                <td className="px-4 py-3 tabular-nums">{formatQuizTime(a.timeTaken)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
