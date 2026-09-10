@@ -9,6 +9,7 @@ import { getOfflineQuiz, getStudentSession, listAttempts, putAttempt } from "@/l
 import { hasInternetAccess } from "@/services/connectivityService";
 import { setActiveAttemptId } from "@/lib/active-attempt";
 import { uid } from "@/lib/quiz-utils";
+import { createAttemptOrder } from "@/lib/shuffle";
 import type { Attempt, OfflineQuiz } from "@/lib/types";
 
 export const Route = createFileRoute("/quiz/offline-check")({
@@ -104,6 +105,7 @@ function OfflineCheckPage() {
         syncStatus: "PENDING_SYNC",
         answers: {},
         quizVersion: quiz.version,
+        ...createAttemptOrder(quiz),
         connectionEvents: [],
       };
       await putAttempt(attempt);

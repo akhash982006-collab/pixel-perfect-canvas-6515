@@ -47,7 +47,10 @@ export type SyncStatus = "SYNCED" | "PENDING_SYNC" | "SYNC_FAILED";
 
 export interface AttemptAnswer {
   questionId: string;
+  /** Canonical index in the ORIGINAL authoring order (never the displayed A/B/C/D position). */
   selectedIndex: number | null;
+  /** Permanent option id of the chosen answer, e.g. "q1_option_3". */
+  selectedOptionId?: string | null;
   markedForReview: boolean;
   updatedAt: string;
 }
@@ -86,5 +89,9 @@ export interface Attempt {
   /** Numeric elapsed milliseconds between start and submission (ranking uses this). */
   timeTaken?: number;
   quizVersion: number;
+  /** Attempt-specific question order (ids), generated once when the attempt is created. */
+  questionOrder?: string[];
+  /** Attempt-specific option order per question id. */
+  optionOrder?: Record<string, string[]>;
   connectionEvents?: ConnectionEvent[];
 }
