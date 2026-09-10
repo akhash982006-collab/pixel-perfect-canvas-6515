@@ -12,4 +12,19 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // Keep React and TanStack Router in one optimized module graph. Without
+    // this, Vite can serve the router against a second React module after HMR,
+    // leaving React.use/useContext without the active render dispatcher.
+    optimizeDeps: {
+      include: [
+        "react",
+        "react-dom",
+        "react-dom/client",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "@tanstack/react-router",
+      ],
+    },
+  },
 });
