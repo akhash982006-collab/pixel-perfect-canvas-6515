@@ -62,8 +62,9 @@ function QuizList() {
               <div className="min-w-0">
                 <h2 className="truncate text-base font-semibold">{q.title}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {q.questions.length} questions · {q.durationMinutes} min
+                  {q.questions.length} questions · {marksOf(q.questions, q.totalMarks)} marks · {q.durationMinutes} min
                 </p>
+                <p className="text-xs text-muted-foreground">{participantsOf(q.id)} participants</p>
               </div>
               <span
                 className={
