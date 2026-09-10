@@ -4,22 +4,35 @@ import { hasInternetAccess } from "@/services/connectivityService";
 export type ConnectivityState = "checking" | "online" | "offline";
 
 interface Options {
-  /** polling interval in ms */
+  /** Fast polling interval while online / checking (ms). */
   intervalMs?: number;
-  /** consecutive failed probes required before reporting offline */
+  /** Slower polling interval once offline is confirmed (ms). Reduces WiFi chatter during the quiz. */
+  slowIntervalMs?: number;
+  /** Consecutive failed probes required before reporting offline. */
   offlineConfirmations?: number;
   enabled?: boolean;
+  /** When true, switch to slowIntervalMs after offline is confirmed. */
+  adaptive?: boolean;
 }
 
 /**
  * Continuously determines whether this device really has internet access.
  * Starts in "checking" so nothing is unlocked on an unknown state.
+ * Adaptive mode slows polling once offline is confirmed, which keeps the
+ * quiz responsive without flooding the lab network with probes.
  */
-export function useConnectivity({ intervalMs = 2500, offlineConfirmations = 2, enabled = true }: Options = {}) {
+export function useConnectivity({
+  intervalMs = 2500,
+  slowIntervalMs = 8000,
+  offlineConfirmations = 2,
+  enabled = true,
+  adaptive = false,
+}: Options = {}) {
   const [state, setState] = useState<ConnectivityState>("checking");
   const offlineStreak = useRef(0);
   const busy = useRef(false);
   const mounted = useRef(true);
+  const confirmedOffline = useRef(false);
 
   const check = useCallback(async () => {
     if (busy.current) return;
@@ -29,12 +42,13 @@ export function useConnectivity({ intervalMs = 2500, offlineConfirmations = 2, e
       if (!mounted.current) return;
       if (online) {
         offlineStreak.current = 0;
+        confirmedOffline.current = false;
         setState("online");
       } else {
         offlineStreak.current += 1;
-        setState((prev) =>
-          offlineStreak.current >= offlineConfirmations ? "offline" : prev === "online" ? "checking" : prev,
-        );
+        const nowOffline = offlineStreak.current >= offlineConfirmations;
+        if (nowOffline) confirmedOffline.current = true;
+        setState((prev) => (nowOffline ? "offline" : prev === "online" ? "checking" : prev));
       }
     } finally {
       busy.current = false;
@@ -45,7 +59,8 @@ export function useConnectivity({ intervalMs = 2500, offlineConfirmations = 2, e
     mounted.current = true;
     if (!enabled) return;
     void check();
-    const id = window.setInterval(() => void check(), intervalMs);
+    const effectiveInterval = adaptive && confirmedOffline.current ? slowIntervalMs : intervalMs;
+    const id = window.setInterval(() => void check(), effectiveInterval);
     const immediate = () => void check();
     window.addEventListener("online", immediate);
     window.addEventListener("offline", immediate);
@@ -55,7 +70,7 @@ export function useConnectivity({ intervalMs = 2500, offlineConfirmations = 2, e
       window.removeEventListener("online", immediate);
       window.removeEventListener("offline", immediate);
     };
-  }, [check, enabled, intervalMs]);
+  }, [check, enabled, intervalMs, slowIntervalMs, adaptive]);
 
   return { state, isOffline: state === "offline", isOnline: state === "online", recheck: check };
 }
