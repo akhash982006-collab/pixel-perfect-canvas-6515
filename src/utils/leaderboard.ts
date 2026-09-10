@@ -1,4 +1,5 @@
 import type { Attempt, Quiz } from "@/lib/types";
+import { normalizeQuestion } from "@/lib/shuffle";
 
 /**
  * Single source of truth for AITHERA QUIZ scoring, timing and ranking.
@@ -33,7 +34,11 @@ export function calculateQuizResult(quiz: Quiz, attempt: Pick<Attempt, "answers"
       unanswered++;
       continue;
     }
-    if (a.selectedIndex === q.correctIndex) {
+    const norm = normalizeQuestion(q);
+    const isCorrect = a.selectedOptionId
+      ? a.selectedOptionId === norm.correctOptionId
+      : a.selectedIndex === q.correctIndex;
+    if (isCorrect) {
       correct++;
       score += Number(q.marks) || 0;
     } else {

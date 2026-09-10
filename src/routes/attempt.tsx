@@ -18,6 +18,7 @@ import { useConnectivity } from "@/hooks/use-connectivity";
 import { enqueueSync, getAttempt, getOfflineQuiz, putAttempt } from "@/lib/db";
 import { getActiveAttemptId } from "@/lib/active-attempt";
 import { evaluate, formatClock } from "@/lib/quiz-utils";
+import { buildAttemptView } from "@/lib/shuffle";
 import { calculateTimeTaken } from "@/utils/leaderboard";
 import { runSync } from "@/lib/sync";
 import type { Attempt, OfflineQuiz } from "@/lib/types";
@@ -152,7 +153,11 @@ function AttemptPage() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [attempt]);
 
-  const questions = quiz?.questions ?? [];
+  // Built once from the order persisted with this attempt — never reshuffled on render.
+  const questions = useMemo(
+    () => (quiz && attempt ? buildAttemptView(quiz, attempt) : []),
+    [quiz, attempt?.attemptId, attempt?.questionOrder, attempt?.optionOrder],
+  );
   const current = questions[index];
 
   const answeredCount = useMemo(
@@ -160,7 +165,9 @@ function AttemptPage() {
     [attempt],
   );
 
-  async function update(patch: Partial<{ selectedIndex: number | null; markedForReview: boolean }>) {
+  async function update(
+    patch: Partial<{ selectedIndex: number | null; selectedOptionId: string | null; markedForReview: boolean }>,
+  ) {
     if (!attempt || !current || locked) return;
     setSaveState("saving");
     const prev = attempt.answers[current.id];
@@ -171,6 +178,8 @@ function AttemptPage() {
         [current.id]: {
           questionId: current.id,
           selectedIndex: patch.selectedIndex !== undefined ? patch.selectedIndex : (prev?.selectedIndex ?? null),
+          selectedOptionId:
+            patch.selectedOptionId !== undefined ? patch.selectedOptionId : (prev?.selectedOptionId ?? null),
           markedForReview: patch.markedForReview ?? prev?.markedForReview ?? false,
           updatedAt: new Date().toISOString(),
         },
@@ -247,13 +256,16 @@ function AttemptPage() {
 
           <div className="mt-6 space-y-3">
             {current.options.map((opt, oi) => {
-              const selected = attempt.answers[current.id]?.selectedIndex === oi;
+              const saved = attempt.answers[current.id];
+              const selected = saved?.selectedOptionId
+                ? saved.selectedOptionId === opt.id
+                : saved?.selectedIndex === opt.index;
               return (
                 <button
-                  key={oi}
+                  key={opt.id}
                   type="button"
                   disabled={locked}
-                  onClick={() => void update({ selectedIndex: oi })}
+                  onClick={() => void update({ selectedIndex: opt.index, selectedOptionId: opt.id })}
                   className={
                     "flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors " +
                     (selected ? "border-primary bg-primary/5 font-medium" : "border-border hover:bg-secondary")
@@ -267,7 +279,7 @@ function AttemptPage() {
                   >
                     {String.fromCharCode(65 + oi)}
                   </span>
-                  {opt}
+                  {opt.text}
                 </button>
               );
             })}
@@ -285,7 +297,7 @@ function AttemptPage() {
             >
               Next
             </Button>
-            <Button variant="ghost" size="sm" disabled={locked} onClick={() => void update({ selectedIndex: null })}>
+            <Button variant="ghost" size="sm" disabled={locked} onClick={() => void update({ selectedIndex: null, selectedOptionId: null })}>
               Clear answer
             </Button>
             <Button
