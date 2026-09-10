@@ -19,6 +19,11 @@ export const Route = createFileRoute("/admin/questions")({
 
 function QuizList() {
   const { data: quizzes = [], refetch, isLoading } = useTeacherQuizzes();
+  const { data: attempts = [] } = useTeacherAttempts(quizzes.map((q) => q.id));
+  const participantsOf = (quizId: string) =>
+    attempts.filter((a) => a.quizId === quizId && a.status === "SUBMITTED").length;
+  const marksOf = (questions: { marks: number }[], fallback: number) =>
+    questions.reduce((s, q) => s + (Number(q.marks) || 0), 0) || fallback;
 
   async function remove(id: string) {
     await deleteQuizFromCloud(id);
