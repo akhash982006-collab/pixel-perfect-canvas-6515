@@ -1,4 +1,4 @@
-const CACHE = "oqp-shell-v4";
+const CACHE = "oqp-shell-v5";
 const PRECACHE = ["/", "/attempt", "/result", "/quiz/offline-check", "/manifest.webmanifest"];
 
 function legacyAttemptRedirect(pathname) {
@@ -53,14 +53,29 @@ self.addEventListener("fetch", (event) => {
       fetch(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => undefined);
           return res;
         })
         .catch(() =>
           caches
             .match(req)
             .then((r) => r || caches.match(url.pathname))
-            .then((r) => r || caches.match("/")),
+            .then((r) => r || caches.match("/"))
+            .then(
+              (r) =>
+                r ||
+                new Response(
+                  "<!doctype html><meta charset=utf-8><title>Offline</title><body style=\"font-family:system-ui;padding:2rem\">You are offline and this page is not saved on the device.</body>",
+                  { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } },
+                ),
+            )
+            .catch(
+              () =>
+                new Response("Offline", {
+                  status: 503,
+                  headers: { "Content-Type": "text/plain; charset=utf-8" },
+                }),
+            ),
         ),
     );
     return;
@@ -72,10 +87,17 @@ self.addEventListener("fetch", (event) => {
       const network = fetch(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => undefined);
           return res;
         })
-        .catch(() => cached);
+        .catch(
+          () =>
+            cached ||
+            new Response("Offline", {
+              status: 503,
+              headers: { "Content-Type": "text/plain; charset=utf-8" },
+            }),
+        );
       return cached || network;
     }),
   );
