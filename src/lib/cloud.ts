@@ -84,3 +84,25 @@ export async function listAllCloudAttempts(): Promise<Attempt[]> {
   if (!isFirebaseConfigured) return localCloudListAttempts();
   return listFirestoreDocuments<Attempt>("attempts");
 }
+
+/** Submitted attempts for a single quiz only — leaderboards are always per quiz. */
+export async function listCloudAttemptsByQuiz(quizId: string): Promise<Attempt[]> {
+  if (!quizId) return [];
+  if (!isFirebaseConfigured) {
+    return (await localCloudListAttempts()).filter((a) => a.quizId === quizId && a.status === "SUBMITTED");
+  }
+  const db = getDbFirestore();
+  if (db) {
+    try {
+      const snap = await getDocs(
+        query(collection(db, "attempts"), where("quizId", "==", quizId), where("status", "==", "SUBMITTED")),
+      );
+      return snap.docs.map((d) => d.data() as Attempt);
+    } catch {
+      // fall through to the authenticated REST listing below
+    }
+  }
+  return (await listFirestoreDocuments<Attempt>("attempts")).filter(
+    (a) => a.quizId === quizId && a.status === "SUBMITTED",
+  );
+}

@@ -1,14 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
-import { useTeacherAttempts, useTeacherQuizzes } from "@/hooks/use-teacher-data";
-import {
-  LEADERBOARD_RULE_TEXT,
-  LEADERBOARD_RULE_TEXT_SECONDARY,
-  formatQuizTime,
-  formatScore,
-  rankResults,
-} from "@/utils/leaderboard";
+import { QuizLeaderboard } from "@/components/quiz-leaderboard";
+import { useQuizAttempts, useTeacherQuizzes } from "@/hooks/use-teacher-data";
+import { LEADERBOARD_RULE_TEXT, LEADERBOARD_RULE_TEXT_SECONDARY } from "@/utils/leaderboard";
 
 export const Route = createFileRoute("/admin/leaderboard")({
   head: () => ({
@@ -24,9 +19,17 @@ export const Route = createFileRoute("/admin/leaderboard")({
 
 function AdminLeaderboard() {
   const { data: quizzes = [] } = useTeacherQuizzes();
-  const { data: attempts = [] } = useTeacherAttempts(quizzes.map((q) => q.id));
+  const [quizId, setQuizId] = useState<string>("");
 
-  const rows = useMemo(() => rankResults(attempts.filter((a) => a.status === "SUBMITTED")), [attempts]);
+  const selectable = quizzes.filter((q) => q.published);
+  const options = selectable.length > 0 ? selectable : quizzes;
+
+  useEffect(() => {
+    if (!quizId && options.length > 0) setQuizId(options[0]!.id);
+  }, [quizId, options]);
+
+  const { data: attempts = [], isLoading } = useQuizAttempts(quizId);
+  const quiz = quizzes.find((q) => q.id === quizId) ?? null;
 
   return (
     <div className="space-y-6">
@@ -39,43 +42,23 @@ function AdminLeaderboard() {
         <p className="text-xs text-muted-foreground">{LEADERBOARD_RULE_TEXT_SECONDARY}</p>
       </div>
 
-      <div className="surface-card overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="border-b border-border text-left text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3 font-medium">Rank</th>
-              <th className="px-4 py-3 font-medium">Role number</th>
-              <th className="px-4 py-3 font-medium">Participant</th>
-              <th className="px-4 py-3 font-medium">Score</th>
-              <th className="px-4 py-3 font-medium">Correct</th>
-              <th className="px-4 py-3 font-medium">Wrong</th>
-              <th className="px-4 py-3 font-medium">Time taken</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
-                  No results yet.
-                </td>
-              </tr>
-            )}
-            {rows.map((a) => (
-              <tr key={a.attemptId} className="border-b border-border last:border-0">
-                <td className="px-4 py-3 font-semibold">{a.rank}</td>
-                <td className="px-4 py-3">{a.roleNumber ?? a.registerNumber}</td>
-                <td className="px-4 py-3 font-medium">{a.studentName}</td>
-                <td className="px-4 py-3 font-semibold">
-                  {formatScore(a.score)} <span className="text-muted-foreground">/ {a.totalMarks ?? "—"}</span>
-                </td>
-                <td className="px-4 py-3">{a.correct ?? 0}</td>
-                <td className="px-4 py-3">{a.wrong ?? 0}</td>
-                <td className="px-4 py-3 tabular-nums">{formatQuizTime(a.timeTaken)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-muted-foreground">Leaderboard for:</span>
+        <select
+          value={quizId}
+          onChange={(e) => setQuizId(e.target.value)}
+          className="h-9 rounded-lg border border-input bg-card px-3 text-sm"
+        >
+          {options.length === 0 && <option value="">No quizzes yet</option>}
+          {options.map((q) => (
+            <option key={q.id} value={q.id}>
+              {q.title} ({q.code})
+            </option>
+          ))}
+        </select>
       </div>
+
+      <QuizLeaderboard quiz={quiz} attempts={attempts} loading={isLoading && Boolean(quizId)} />
     </div>
   );
 }

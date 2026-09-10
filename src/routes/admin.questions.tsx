@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Copy, Pencil, Trash2 } from "lucide-react";
+import { BarChart3, Copy, Pencil, Trash2, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useTeacherQuizzes } from "@/hooks/use-teacher-data";
+import { useTeacherAttempts, useTeacherQuizzes } from "@/hooks/use-teacher-data";
 import { deleteQuizFromCloud } from "@/lib/cloud";
 
 export const Route = createFileRoute("/admin/questions")({
@@ -19,6 +19,11 @@ export const Route = createFileRoute("/admin/questions")({
 
 function QuizList() {
   const { data: quizzes = [], refetch, isLoading } = useTeacherQuizzes();
+  const { data: attempts = [] } = useTeacherAttempts(quizzes.map((q) => q.id));
+  const participantsOf = (quizId: string) =>
+    attempts.filter((a) => a.quizId === quizId && a.status === "SUBMITTED").length;
+  const marksOf = (questions: { marks: number }[], fallback: number) =>
+    questions.reduce((s, q) => s + (Number(q.marks) || 0), 0) || fallback;
 
   async function remove(id: string) {
     await deleteQuizFromCloud(id);
@@ -57,8 +62,9 @@ function QuizList() {
               <div className="min-w-0">
                 <h2 className="truncate text-base font-semibold">{q.title}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {q.questions.length} questions · {q.durationMinutes} min
+                  {q.questions.length} questions · {marksOf(q.questions, q.totalMarks)} marks · {q.durationMinutes} min
                 </p>
+                <p className="text-xs text-muted-foreground">{participantsOf(q.id)} participants</p>
               </div>
               <span
                 className={
@@ -84,10 +90,20 @@ function QuizList() {
               </button>
             )}
 
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm">
                 <Link to="/admin/create" search={{ id: q.id }}>
                   <Pencil className="size-4" /> Edit
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/admin/results">
+                  <BarChart3 className="size-4" /> Results
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/admin/quizzes/$quizId/leaderboard" params={{ quizId: q.id }}>
+                  <Trophy className="size-4" /> Leaderboard
                 </Link>
               </Button>
               <Button variant="ghost" size="sm" onClick={() => void remove(q.id)}>

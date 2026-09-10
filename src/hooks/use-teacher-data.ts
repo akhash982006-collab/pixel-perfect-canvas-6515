@@ -1,6 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { listCloudAttempts, listTeacherQuizzes } from "@/lib/cloud";
+import { listCloudAttempts, listCloudAttemptsByQuiz, listTeacherQuizzes } from "@/lib/cloud";
 import { useAuth } from "./use-auth";
+
+/** Submitted attempts for one quiz only. */
+export function useQuizAttempts(quizId?: string | null) {
+  return useQuery({
+    queryKey: ["quiz-attempts", quizId],
+    enabled: Boolean(quizId),
+    queryFn: () => listCloudAttemptsByQuiz(quizId!),
+  });
+}
 
 export function useTeacherQuizzes() {
   const { user } = useAuth();
