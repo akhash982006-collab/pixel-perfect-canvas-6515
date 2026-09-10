@@ -32,7 +32,6 @@ export function useConnectivity({
   const offlineStreak = useRef(0);
   const busy = useRef(false);
   const mounted = useRef(true);
-  const confirmedOffline = useRef(false);
 
   const check = useCallback(async () => {
     if (busy.current) return;
