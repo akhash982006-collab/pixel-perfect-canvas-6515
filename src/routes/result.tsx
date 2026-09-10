@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, CloudUpload, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,8 @@ function ResultPage() {
   const [attempt, setAttempt] = useState<Attempt | null>(null);
   const [quiz, setQuiz] = useState<OfflineQuiz | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const attemptRef = useRef<Attempt | null>(null);
+  attemptRef.current = attempt;
 
   const load = async (id = attemptId) => {
     if (!id) return;
@@ -39,8 +41,16 @@ function ResultPage() {
     const id = getActiveAttemptId();
     setAttemptId(id);
     void load(id);
-    const t = window.setInterval(() => void load(id), 5000);
-    return () => window.clearInterval(t);
+    // Poll less often to avoid a flood of requests when many devices finish together.
+    const t = window.setInterval(() => {
+      if (attemptRef.current?.syncStatus !== "SYNCED") void load(id);
+    }, 15000);
+    const onOnline = () => void runSync().then(() => load(id));
+    window.addEventListener("online", onOnline);
+    return () => {
+      window.clearInterval(t);
+      window.removeEventListener("online", onOnline);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

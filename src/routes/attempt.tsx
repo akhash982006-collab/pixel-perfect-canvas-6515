@@ -52,8 +52,10 @@ function AttemptPage() {
   const active = attempt?.status === "IN_PROGRESS";
   const { state: connectivity } = useConnectivity({
     intervalMs: 2500,
+    slowIntervalMs: 8000,
     offlineConfirmations: 2,
     enabled: Boolean(active),
+    adaptive: true,
   });
   const locked = active === true && connectivity === "online";
 
