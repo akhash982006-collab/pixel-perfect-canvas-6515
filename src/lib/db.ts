@@ -57,10 +57,18 @@ export interface SyncJob {
   createdAt: string;
   retries: number;
   lastError?: string;
+  /** Timestamp (ms) when this job is next allowed to retry. */
+  nextRetry?: number;
 }
 export async function enqueueSync(attemptId: string) {
   const db = await getDb();
-  await db.put("syncQueue", { id: attemptId, attemptId, createdAt: new Date().toISOString(), retries: 0 } as SyncJob);
+  await db.put("syncQueue", {
+    id: attemptId,
+    attemptId,
+    createdAt: new Date().toISOString(),
+    retries: 0,
+    nextRetry: Date.now(),
+  } as SyncJob);
 }
 export async function listSyncJobs(): Promise<SyncJob[]> {
   return (await getDb()).getAll("syncQueue");
