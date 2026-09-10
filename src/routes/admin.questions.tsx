@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Copy, Pencil, Trash2 } from "lucide-react";
+import { BarChart3, Copy, Pencil, Trash2, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useTeacherQuizzes } from "@/hooks/use-teacher-data";
+import { useTeacherAttempts, useTeacherQuizzes } from "@/hooks/use-teacher-data";
 import { deleteQuizFromCloud } from "@/lib/cloud";
 
 export const Route = createFileRoute("/admin/questions")({
