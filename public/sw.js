@@ -1,4 +1,4 @@
-const CACHE = "oqp-shell-v4";
+const CACHE = "oqp-shell-v5";
 const PRECACHE = ["/", "/attempt", "/result", "/quiz/offline-check", "/manifest.webmanifest"];
 
 function legacyAttemptRedirect(pathname) {
