@@ -41,12 +41,10 @@ export function useConnectivity({
       if (!mounted.current) return;
       if (online) {
         offlineStreak.current = 0;
-        confirmedOffline.current = false;
         setState("online");
       } else {
         offlineStreak.current += 1;
         const nowOffline = offlineStreak.current >= offlineConfirmations;
-        if (nowOffline) confirmedOffline.current = true;
         setState((prev) => (nowOffline ? "offline" : prev === "online" ? "checking" : prev));
       }
     } finally {
