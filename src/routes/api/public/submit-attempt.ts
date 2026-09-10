@@ -12,6 +12,7 @@ import { createDocument, getDocument } from "@/lib/firestore-rest.server";
 const answerSchema = z.object({
   questionId: z.string().min(1),
   selectedIndex: z.number().int().nullable(),
+  selectedOptionId: z.string().max(120).nullable().optional(),
   markedForReview: z.boolean(),
   updatedAt: z.string(),
 });
@@ -30,6 +31,8 @@ const attemptSchema = z.object({
   status: z.enum(["NOT_STARTED", "IN_PROGRESS", "SUBMITTED"]),
   answers: z.record(z.string(), answerSchema).default({}),
   quizVersion: z.number().int(),
+  questionOrder: z.array(z.string().max(120)).max(500).optional(),
+  optionOrder: z.record(z.string(), z.array(z.string().max(120)).max(20)).optional(),
   connectionEvents: z
     .array(
       z.object({
@@ -46,6 +49,7 @@ const attemptSchema = z.object({
 interface StoredQuestion {
   id: string;
   correctIndex: number;
+  correctOptionId?: string;
   marks: number;
   negativeMarks: number;
 }
@@ -86,7 +90,11 @@ export const Route = createFileRoute("/api/public/submit-attempt")({
           const a = parsed.answers[q.id];
           if (!a || a.selectedIndex === null || a.selectedIndex === undefined) {
             unanswered++;
-          } else if (a.selectedIndex === q.correctIndex) {
+          } else if (
+            a.selectedOptionId
+              ? a.selectedOptionId === (q.correctOptionId ?? `${q.id}_option_${(q.correctIndex ?? 0) + 1}`)
+              : a.selectedIndex === q.correctIndex
+          ) {
             correct++;
             score += q.marks ?? 1;
           } else {
