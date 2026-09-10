@@ -30,7 +30,8 @@ export const Route = createFileRoute("/")({
 
 const infoPills = [
   { icon: ListChecks, label: "30 Questions" },
-  { icon: Clock3, label: "20 Minutes" },
+  { icon: Clock3, label: "15 Minutes" },
+
   { icon: Sparkles, label: "MCQ" },
   { icon: Trophy, label: "Live Leaderboard" },
 ];
