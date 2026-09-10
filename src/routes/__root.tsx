@@ -124,10 +124,22 @@ function RootComponent() {
   useEffect(() => {
     const stop = startSyncWatcher();
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js", { updateViaCache: "none" })
-        .then((registration) => registration.update())
-        .catch(() => undefined);
+      if (import.meta.env.PROD) {
+        navigator.serviceWorker
+          .register("/sw.js", { updateViaCache: "none" })
+          .then((registration) => registration.update())
+          .catch(() => undefined);
+      } else {
+        // A service worker must never cache Vite's transformed development
+        // modules. Mixing an older React module with a newer router chunk
+        // causes invalid hook dispatcher errors after hot updates.
+        navigator.serviceWorker
+          .getRegistrations()
+          .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+          .then(() => caches.keys())
+          .then((keys) => Promise.all(keys.filter((key) => key.startsWith("oqp-shell-")).map((key) => caches.delete(key))))
+          .catch(() => undefined);
+      }
     }
     return stop;
   }, []);
