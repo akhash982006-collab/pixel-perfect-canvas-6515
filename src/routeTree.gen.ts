@@ -27,6 +27,7 @@ import { Route as QuizOfflineCheckRouteImport } from './routes/quiz.offline-chec
 import { Route as QuizPrepareRouteImport } from './routes/quiz.prepare'
 import { Route as ApiPublicConnectivityCheckRouteImport } from './routes/api/public/connectivity-check'
 import { Route as ApiPublicSubmitAttemptRouteImport } from './routes/api/public/submit-attempt'
+import { Route as AdminQuizzesQuizIdLeaderboardRouteImport } from './routes/admin.quizzes.$quizId.leaderboard'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -119,6 +120,12 @@ const ApiPublicSubmitAttemptRoute = ApiPublicSubmitAttemptRouteImport.update({
   path: '/api/public/submit-attempt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminQuizzesQuizIdLeaderboardRoute =
+  AdminQuizzesQuizIdLeaderboardRouteImport.update({
+    id: '/quizzes/$quizId/leaderboard',
+    path: '/quizzes/$quizId/leaderboard',
+    getParentRoute: () => AdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
   '/api/public/submit-attempt': typeof ApiPublicSubmitAttemptRoute
+  '/admin/quizzes/$quizId/leaderboard': typeof AdminQuizzesQuizIdLeaderboardRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -158,6 +166,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
   '/api/public/submit-attempt': typeof ApiPublicSubmitAttemptRoute
+  '/admin/quizzes/$quizId/leaderboard': typeof AdminQuizzesQuizIdLeaderboardRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -179,6 +188,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/api/public/connectivity-check': typeof ApiPublicConnectivityCheckRoute
   '/api/public/submit-attempt': typeof ApiPublicSubmitAttemptRoute
+  '/admin/quizzes/$quizId/leaderboard': typeof AdminQuizzesQuizIdLeaderboardRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/api/public/connectivity-check'
     | '/api/public/submit-attempt'
+    | '/admin/quizzes/$quizId/leaderboard'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -220,6 +231,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api/public/connectivity-check'
     | '/api/public/submit-attempt'
+    | '/admin/quizzes/$quizId/leaderboard'
   id:
     | '__root__'
     | '/'
@@ -240,6 +252,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/api/public/connectivity-check'
     | '/api/public/submit-attempt'
+    | '/admin/quizzes/$quizId/leaderboard'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -383,6 +396,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSubmitAttemptRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/quizzes/$quizId/leaderboard': {
+      id: '/admin/quizzes/$quizId/leaderboard'
+      path: '/quizzes/$quizId/leaderboard'
+      fullPath: '/admin/quizzes/$quizId/leaderboard'
+      preLoaderRoute: typeof AdminQuizzesQuizIdLeaderboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
@@ -395,6 +415,7 @@ interface AdminRouteChildren {
   AdminResultsRoute: typeof AdminResultsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminQuizzesQuizIdLeaderboardRoute: typeof AdminQuizzesQuizIdLeaderboardRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -406,6 +427,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminResultsRoute: AdminResultsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminQuizzesQuizIdLeaderboardRoute: AdminQuizzesQuizIdLeaderboardRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
