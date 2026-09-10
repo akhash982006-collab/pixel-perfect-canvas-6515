@@ -59,7 +59,8 @@ export function useConnectivity({
     mounted.current = true;
     if (!enabled) return;
     void check();
-    const effectiveInterval = adaptive && confirmedOffline.current ? slowIntervalMs : intervalMs;
+    // Once offline is confirmed, slow down probes to reduce network chatter.
+    const effectiveInterval = adaptive && state === "offline" ? slowIntervalMs : intervalMs;
     const id = window.setInterval(() => void check(), effectiveInterval);
     const immediate = () => void check();
     window.addEventListener("online", immediate);
@@ -70,7 +71,7 @@ export function useConnectivity({
       window.removeEventListener("online", immediate);
       window.removeEventListener("offline", immediate);
     };
-  }, [check, enabled, intervalMs, slowIntervalMs, adaptive]);
+  }, [check, enabled, intervalMs, slowIntervalMs, adaptive, state]);
 
   return { state, isOffline: state === "offline", isOnline: state === "online", recheck: check };
 }
