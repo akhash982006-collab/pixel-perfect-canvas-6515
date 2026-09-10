@@ -59,7 +59,7 @@ function CreateQuiz() {
   const [title, setTitle] = useState("");
   const [code, setCode] = useState("");
   const [instructions, setInstructions] = useState(defaultInstructions);
-  const [durationMinutes, setDuration] = useState(15);
+  const [durationMinutes, setDuration] = useState(30);
   const [marksPerQuestion, setMarksPerQuestion] = useState(1);
   const [negativeValue, setNegativeValue] = useState(0.25);
   const [settings, setSettings] = useState<QuizSettings>(defaultSettings);
