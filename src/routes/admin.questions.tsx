@@ -96,6 +96,16 @@ function QuizList() {
                   <Pencil className="size-4" /> Edit
                 </Link>
               </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/admin/results">
+                  <BarChart3 className="size-4" /> Results
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/admin/quizzes/$quizId/leaderboard" params={{ quizId: q.id }}>
+                  <Trophy className="size-4" /> Leaderboard
+                </Link>
+              </Button>
               <Button variant="ghost" size="sm" onClick={() => void remove(q.id)}>
                 <Trash2 className="size-4" /> Delete
               </Button>
