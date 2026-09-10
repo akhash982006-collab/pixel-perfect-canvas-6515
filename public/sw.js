@@ -1,4 +1,4 @@
-const CACHE = "oqp-shell-v5";
+const CACHE = "oqp-shell-v6";
 const PRECACHE = ["/", "/attempt", "/result", "/quiz/offline-check", "/manifest.webmanifest"];
 
 function legacyAttemptRedirect(pathname) {
@@ -39,6 +39,17 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
   // The connectivity probe must ALWAYS hit the network — never serve it from cache.
   if (url.pathname.startsWith("/api/")) return;
+
+  // Vite serves source and dependency modules from these paths in preview.
+  // Caching them can combine incompatible React/router versions after HMR.
+  if (
+    url.pathname.startsWith("/src/") ||
+    url.pathname.startsWith("/node_modules/") ||
+    url.pathname.startsWith("/@") ||
+    url.pathname.startsWith("/__")
+  ) {
+    return;
+  }
 
   if (req.mode === "navigate") {
     // Older app versions used /attempt/:id. Migrate those links without a
