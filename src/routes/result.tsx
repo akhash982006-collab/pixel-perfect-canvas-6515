@@ -27,6 +27,8 @@ function ResultPage() {
   const [attempt, setAttempt] = useState<Attempt | null>(null);
   const [quiz, setQuiz] = useState<OfflineQuiz | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const attemptRef = useRef<Attempt | null>(null);
+  attemptRef.current = attempt;
 
   const load = async (id = attemptId) => {
     if (!id) return;
