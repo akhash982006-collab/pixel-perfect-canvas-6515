@@ -90,7 +90,7 @@ function QuizList() {
               </button>
             )}
 
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm">
                 <Link to="/admin/create" search={{ id: q.id }}>
                   <Pencil className="size-4" /> Edit
